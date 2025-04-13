@@ -48,7 +48,7 @@ export class PostgresEventStore<E> implements EventStore<E> {
     const payloads: string[] = [];
 
     for (const envelope of envelopes) {
-      streamIDs.push(Array.isArray(envelope.streamID) ? envelope.streamID : [envelope.streamID]);
+      streamIDs.push(Array.isArray(envelope.streamId) ? envelope.streamId : [envelope.streamId]);
       eventNames.push(envelope.eventName);
       payloads.push(JSON.stringify(envelope.event));
     }
@@ -75,8 +75,8 @@ export class PostgresEventStore<E> implements EventStore<E> {
               ? this.#sql`
                   "Position" > ${writeCondition.lastEventPosition.toString()}
                   ${
-                    writeCondition.query.streamID.length > 0
-                      ? this.#sql`AND "StreamID" && ${this.#sql.array(writeCondition.query.streamID)}`
+                    writeCondition.query.streamId.length > 0
+                      ? this.#sql`AND "StreamID" && ${this.#sql.array(writeCondition.query.streamId)}`
                       : this.#sql``
                   }
                   ${
@@ -90,7 +90,7 @@ export class PostgresEventStore<E> implements EventStore<E> {
               `
           }
       )
-      RETURNING *;
+      RETURNING "Position" as "position", "Timestamp" as "timestamp", "StreamID" as "streamId", "EventName" as "eventName", "Event" as "event";
     `;
 
     if (writeCondition && persistedRows.length === 0) {
@@ -100,14 +100,14 @@ export class PostgresEventStore<E> implements EventStore<E> {
     return persistedRows;
   }
 
-  async read({ upto, streamIDs = [], events = [], limit = 0 }: ReadCondition): Promise<PersistedEnvelope[]> {
+  async read({ upto, streamIds: streamIDs = [], events = [], limit = 0 }: ReadCondition): Promise<PersistedEnvelope[]> {
     return this.#sql<PersistedEnvelope[]>`
             SELECT
-                "Position",
-                "Timestamp",
-                "StreamID",
-                "EventName",
-                "Event"
+                "Position" as "position",
+                "Timestamp" as "timestamp",
+                "StreamID" as "streamId",
+                "EventName" as "eventName",
+                "Event" as "event"
             FROM ${this.#sql.unsafe(this.#tableName)}
             WHERE
                 TRUE

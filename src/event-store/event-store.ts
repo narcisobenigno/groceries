@@ -1,13 +1,13 @@
 export interface PersistedEnvelope {
-  Position: bigint;
-  Timestamp: Date;
-  StreamID: string[];
-  EventName: string;
-  Event: any;
+  position: bigint;
+  timestamp: Date;
+  streamId: string[];
+  eventName: string;
+  event: Record<string, unknown>;
 }
 
 export interface Envelope<E> {
-  streamID: string | string[];
+  streamId: string | string[];
   eventName: string;
   event: E;
 }
@@ -15,14 +15,14 @@ export interface Envelope<E> {
 export interface WriteCondition {
   lastEventPosition: bigint;
   query: {
-    streamID: string[];
+    streamId: string[];
     events?: string[];
   };
 }
 
 export interface ReadCondition {
   upto?: bigint;
-  streamIDs?: string[];
+  streamIds?: string[];
   events?: string[];
   limit?: number;
 }
