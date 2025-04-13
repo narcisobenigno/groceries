@@ -1,5 +1,5 @@
 import type { Sql } from "postgres";
-import type { Envelope, EventStore, PersistedEnvelope, WriteCondition } from "./event-store";
+import type { Envelope, EventStore, PersistedEnvelope, ReadCondition, WriteCondition } from "./event-store";
 
 export class PostgresEventStore<E> implements EventStore<E> {
   #schemaName: string;
@@ -100,12 +100,12 @@ export class PostgresEventStore<E> implements EventStore<E> {
     return persistedRows;
   }
 
-  async read(
-    offset: bigint = BigInt(0),
-    streamIDs: string[] = [],
-    events: string[] = [],
+  async read({
+    offset = BigInt(0),
+    streamIDs = [],
+    events = [],
     limit = 0,
-  ): Promise<PersistedEnvelope[]> {
+  }: ReadCondition): Promise<PersistedEnvelope[]> {
     return this.#sql<PersistedEnvelope[]>`
             SELECT
                 "Position",

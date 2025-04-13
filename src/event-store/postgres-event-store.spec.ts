@@ -4,7 +4,6 @@ import { Wait } from "testcontainers";
 import type { PersistedEnvelope } from "./event-store";
 import { PostgresEventStore } from "./postgres-event-store";
 
-// Test event type
 interface TestEvent {
   type: string;
   data: any;
@@ -157,7 +156,7 @@ describe("PostgresEventStore", () => {
           event: { type: "updated", data: { id: 1 } },
         },
       ]);
-      const result = await eventStore.read(BigInt(0));
+      const result = await eventStore.read({});
       expect(result.length).toBe(2);
     });
 
@@ -183,7 +182,7 @@ describe("PostgresEventStore", () => {
           event: { type: "created", data: { id: 1 } },
         },
       ]);
-      const result = await eventStore.read(BigInt(0), ["stream-1"]);
+      const result = await eventStore.read({ streamIDs: ["stream-1"] });
 
       expect(result.length).toBe(2);
       expect(result.every((e) => e.StreamID.includes("stream-1"))).toBe(true);
@@ -204,7 +203,7 @@ describe("PostgresEventStore", () => {
           event: { type: "updated", data: { id: 1 } },
         },
       ]);
-      const result = await eventStore.read(BigInt(0), ["stream-1", "stream-2"]);
+      const result = await eventStore.read({ streamIDs: ["stream-1", "stream-2"] });
       expect(result.length).toBe(2);
     });
 
@@ -223,7 +222,7 @@ describe("PostgresEventStore", () => {
           event: { type: "updated", data: { id: 1 } },
         },
       ]);
-      const result = await eventStore.read(BigInt(0), [], ["TestEvent2"]);
+      const result = await eventStore.read({ events: ["TestEvent2"] });
       expect(result.length).toBe(1);
       expect(result[0].EventName).toBe("TestEvent2");
     });
@@ -250,9 +249,9 @@ describe("PostgresEventStore", () => {
           event: { type: "created", data: { id: 3 } },
         },
       ]);
-      const allEvents = await eventStore.read(BigInt(0));
+      const allEvents = await eventStore.read({});
       expect(allEvents.length).toBe(3);
-      const result = await eventStore.read(allEvents[0].Position);
+      const result = await eventStore.read({ offset: allEvents[0].Position });
       expect(result.length).toBe(2);
     });
 
@@ -278,7 +277,7 @@ describe("PostgresEventStore", () => {
           event: { type: "created", data: { id: 3 } },
         },
       ]);
-      const result = await eventStore.read(BigInt(0), [], [], 2);
+      const result = await eventStore.read({ limit: 2 });
       expect(result.length).toBe(2);
     });
 
@@ -297,7 +296,12 @@ describe("PostgresEventStore", () => {
           event: { type: "updated", data: { id: 1 } },
         },
       ]);
-      const result = await eventStore.read(BigInt(0), ["stream-1"], ["TestEvent1", "TestEvent2"], 1);
+      const result = await eventStore.read({
+        offset: BigInt(0),
+        streamIDs: ["stream-1"],
+        events: ["TestEvent1", "TestEvent2"],
+        limit: 1,
+      });
       expect(result.length).toBe(1);
     });
   });

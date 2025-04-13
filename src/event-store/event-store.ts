@@ -20,8 +20,15 @@ export interface WriteCondition {
   };
 }
 
+export interface ReadCondition {
+  offset?: bigint;
+  streamIDs?: string[];
+  events?: string[];
+  limit?: number;
+}
+
 export interface EventStore<E> {
   save(envelopes: Envelope<E>[], writeCondition?: WriteCondition): Promise<PersistedEnvelope[]>;
 
-  read(offset: bigint, streamIDs: string[], events: string[], limit: number): Promise<PersistedEnvelope[]>;
+  read(conditions: ReadCondition): Promise<PersistedEnvelope[]>;
 }
