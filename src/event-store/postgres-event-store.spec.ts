@@ -307,7 +307,6 @@ describe("PostgresEventStore", () => {
         },
       ]);
       const result = await eventStore.read({
-        upto: BigInt(0),
         streamIDs: ["stream-1"],
         events: ["TestEvent1", "TestEvent2"],
         limit: 1,
