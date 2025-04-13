@@ -1,6 +1,6 @@
-import { PostgreSqlContainer } from "@testcontainers/postgresql";
+import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 import postgres, { type Sql } from "postgres";
-import { GenericContainer, Wait } from "testcontainers";
+import { Wait } from "testcontainers";
 import { PostgresEventStore } from "./postgres-event-store";
 import type { PersistedEnvelope } from "./types";
 
@@ -11,18 +11,16 @@ interface TestEvent {
 }
 
 describe("PostgresEventStore", () => {
+  let container: StartedPostgreSqlContainer;
   let sql: Sql;
   let eventStore: PostgresEventStore<TestEvent>;
 
+  beforeAll(async () => {
+    container = await new PostgreSqlContainer("postgres:17-alpine").withWaitStrategy(Wait.forListeningPorts()).start();
+  });
+
   beforeEach(async () => {
-    sql = postgres({
-      database: "test",
-      user: "test",
-      pass: "test",
-      host: "localhost",
-      ssl: false,
-      port: 5432,
-    });
+    sql = postgres(container.getConnectionUri());
     const schemaName = `events${Math.floor(Math.random() * 100000)}`;
 
     eventStore = new PostgresEventStore<TestEvent>(schemaName, sql);
@@ -31,6 +29,9 @@ describe("PostgresEventStore", () => {
 
   afterEach(async () => {
     await sql.end();
+  });
+  afterAll(async () => {
+    await container.stop();
   });
 
   describe("save", () => {

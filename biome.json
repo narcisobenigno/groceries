@@ -8,7 +8,8 @@
     "rules": {
       "recommended": true,
       "correctness": {
-        "noUnusedVariables": "warn"
+        "noUnusedVariables": "error",
+        "noUnusedImports": "error"
       },
       "style": {
         "useBlockStatements": "off",
