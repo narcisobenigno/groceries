@@ -1,8 +1,8 @@
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 import postgres, { type Sql } from "postgres";
 import { Wait } from "testcontainers";
+import type { PersistedEnvelope } from "./event-store";
 import { PostgresEventStore } from "./postgres-event-store";
-import type { PersistedEnvelope } from "./types";
 
 // Test event type
 interface TestEvent {

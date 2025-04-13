@@ -1,7 +1,5 @@
 import type { Sql } from "postgres";
-import type { EventStore } from "./event-store";
-import type { Envelope, PersistedEnvelope } from "./types";
-import type { WriteCondition } from "./types";
+import type { Envelope, EventStore, PersistedEnvelope, WriteCondition } from "./event-store";
 
 export class PostgresEventStore<E> implements EventStore<E> {
   #schemaName: string;
