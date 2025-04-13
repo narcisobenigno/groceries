@@ -226,7 +226,7 @@ describe("PostgresEventStore", () => {
       expect(result[0].EventName).toBe("TestEvent2");
     });
 
-    it("filters by offset", async () => {
+    it("filters by upto", async () => {
       await eventStore.save([
         {
           streamID: "stream-1",
@@ -250,7 +250,7 @@ describe("PostgresEventStore", () => {
       ]);
       const allEvents = await eventStore.read({});
       expect(allEvents.length).toBe(3);
-      const result = await eventStore.read({ offset: allEvents[1].Position });
+      const result = await eventStore.read({ upto: allEvents[1].Position });
       expect(result).toMatchObject([
         {
           StreamID: ["stream-1"],
@@ -307,7 +307,7 @@ describe("PostgresEventStore", () => {
         },
       ]);
       const result = await eventStore.read({
-        offset: BigInt(0),
+        upto: BigInt(0),
         streamIDs: ["stream-1"],
         events: ["TestEvent1", "TestEvent2"],
         limit: 1,

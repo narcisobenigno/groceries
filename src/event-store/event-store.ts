@@ -21,7 +21,7 @@ export interface WriteCondition {
 }
 
 export interface ReadCondition {
-  offset?: bigint;
+  upto?: bigint;
   streamIDs?: string[];
   events?: string[];
   limit?: number;
