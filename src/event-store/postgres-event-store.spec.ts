@@ -17,6 +17,9 @@ describe("PostgresEventStore", () => {
   beforeAll(async () => {
     container = await new PostgreSqlContainer("postgres:17-alpine").withWaitStrategy(Wait.forListeningPorts()).start();
   });
+  afterAll(async () => {
+    await container.stop();
+  });
 
   beforeEach(async () => {
     sql = postgres(container.getConnectionUri());
@@ -25,12 +28,8 @@ describe("PostgresEventStore", () => {
     eventStore = new PostgresEventStore<TestEvent>(schemaName, sql);
     await eventStore.init();
   }, 120_000);
-
   afterEach(async () => {
     await sql.end();
-  });
-  afterAll(async () => {
-    await container.stop();
   });
 
   describe("save", () => {
