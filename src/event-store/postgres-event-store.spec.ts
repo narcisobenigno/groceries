@@ -238,7 +238,7 @@ describe("PostgresEventStore", () => {
         {
           streamID: "stream-2",
           eventName: "TestEvent2",
-          event: { type: "updated", data: { id: 1 } },
+          event: { type: "updated", data: { id: 2 } },
         },
       ]);
       await eventStore.save([
@@ -250,8 +250,19 @@ describe("PostgresEventStore", () => {
       ]);
       const allEvents = await eventStore.read({});
       expect(allEvents.length).toBe(3);
-      const result = await eventStore.read({ offset: allEvents[0].Position });
-      expect(result.length).toBe(2);
+      const result = await eventStore.read({ offset: allEvents[1].Position });
+      expect(result).toMatchObject([
+        {
+          StreamID: ["stream-1"],
+          EventName: "TestEvent1",
+          Event: { type: "created", data: { id: 1 } },
+        },
+        {
+          StreamID: ["stream-2"],
+          EventName: "TestEvent2",
+          Event: { type: "updated", data: { id: 2 } },
+        },
+      ]);
     });
 
     it("limits results", async () => {
