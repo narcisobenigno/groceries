@@ -42,10 +42,13 @@ describe("PostgresEventStore", () => {
 
       const result = await eventStore.save([event]);
 
-      expect(result.length).toBe(1);
-      expect(result[0].streamId).toEqual(["stream-1"]);
-      expect(result[0].eventName).toBe("TestEvent");
-      expect(result[0].event).toEqual(event.event);
+      expect(result).toMatchObject([
+        {
+          streamId: ["stream-1"],
+          eventName: "TestEvent",
+          event: { type: "created", data: { foo: "bar" } },
+        },
+      ]);
     });
 
     it("inserts multiple events in bulk", async () => {
@@ -87,7 +90,6 @@ describe("PostgresEventStore", () => {
         },
       ]);
 
-      // Try to insert with outdated position
       await expect(
         eventStore.save(
           [
@@ -117,7 +119,6 @@ describe("PostgresEventStore", () => {
         },
       ]);
 
-      // Insert with correct position
       const result = await eventStore.save(
         [
           {
@@ -135,7 +136,13 @@ describe("PostgresEventStore", () => {
         },
       );
 
-      expect(result.length).toBe(1);
+      expect(result).toMatchObject([
+        {
+          streamId: ["stream-1"],
+          eventName: "TestEvent2",
+          event: { type: "updated", data: { foo: "baz" } },
+        },
+      ]);
     });
   });
 
@@ -155,8 +162,21 @@ describe("PostgresEventStore", () => {
           event: { type: "updated", data: { id: 1 } },
         },
       ]);
+
       const result = await eventStore.read({});
-      expect(result.length).toBe(2);
+
+      expect(result).toMatchObject([
+        {
+          streamId: ["stream-1"],
+          eventName: "TestEvent1",
+          event: { type: "created", data: { id: 1 } },
+        },
+        {
+          streamId: ["stream-1", "stream-2"],
+          eventName: "TestEvent2",
+          event: { type: "updated", data: { id: 1 } },
+        },
+      ]);
     });
 
     it("filters by stream ID", async () => {
@@ -171,7 +191,7 @@ describe("PostgresEventStore", () => {
         {
           streamId: ["stream-1", "stream-2"],
           eventName: "TestEvent2",
-          event: { type: "updated", data: { id: 1 } },
+          event: { type: "updated", data: { id: 2 } },
         },
       ]);
       await eventStore.save([
@@ -183,8 +203,18 @@ describe("PostgresEventStore", () => {
       ]);
       const result = await eventStore.read({ streamIds: ["stream-1"] });
 
-      expect(result.length).toBe(2);
-      expect(result.every((e) => e.streamId.includes("stream-1"))).toBe(true);
+      expect(result).toMatchObject([
+        {
+          streamId: ["stream-1"],
+          eventName: "TestEvent1",
+          event: { type: "created", data: { id: 1 } },
+        },
+        {
+          streamId: ["stream-1", "stream-2"],
+          eventName: "TestEvent2",
+          event: { type: "updated", data: { id: 2 } },
+        },
+      ]);
     });
 
     it("filters by multiple stream IDs", async () => {
@@ -199,11 +229,24 @@ describe("PostgresEventStore", () => {
         {
           streamId: "stream-2",
           eventName: "TestEvent2",
-          event: { type: "updated", data: { id: 1 } },
+          event: { type: "updated", data: { id: 2 } },
         },
       ]);
+
       const result = await eventStore.read({ streamIds: ["stream-1", "stream-2"] });
-      expect(result.length).toBe(2);
+
+      expect(result).toMatchObject([
+        {
+          streamId: ["stream-1"],
+          eventName: "TestEvent1",
+          event: { type: "created", data: { id: 1 } },
+        },
+        {
+          streamId: ["stream-2"],
+          eventName: "TestEvent2",
+          event: { type: "updated", data: { id: 2 } },
+        },
+      ]);
     });
 
     it("filters by event name", async () => {
@@ -218,12 +261,19 @@ describe("PostgresEventStore", () => {
         {
           streamId: "stream-2",
           eventName: "TestEvent2",
-          event: { type: "updated", data: { id: 1 } },
+          event: { type: "updated", data: { id: 2 } },
         },
       ]);
+
       const result = await eventStore.read({ events: ["TestEvent2"] });
-      expect(result.length).toBe(1);
-      expect(result[0].eventName).toBe("TestEvent2");
+
+      expect(result).toMatchObject([
+        {
+          streamId: ["stream-2"],
+          eventName: "TestEvent2",
+          event: { type: "updated", data: { id: 2 } },
+        },
+      ]);
     });
 
     it("filters by upto", async () => {
@@ -249,7 +299,8 @@ describe("PostgresEventStore", () => {
         },
       ]);
       const allEvents = await eventStore.read({});
-      expect(allEvents.length).toBe(3);
+      expect(allEvents).toHaveLength(3);
+
       const result = await eventStore.read({ upto: allEvents[1].position });
       expect(result).toMatchObject([
         {
@@ -277,7 +328,7 @@ describe("PostgresEventStore", () => {
         {
           streamId: "stream-2",
           eventName: "TestEvent2",
-          event: { type: "updated", data: { id: 1 } },
+          event: { type: "updated", data: { id: 2 } },
         },
       ]);
       await eventStore.save([
@@ -288,7 +339,19 @@ describe("PostgresEventStore", () => {
         },
       ]);
       const result = await eventStore.read({ limit: 2 });
-      expect(result.length).toBe(2);
+
+      expect(result).toMatchObject([
+        {
+          streamId: ["stream-1"],
+          eventName: "TestEvent1",
+          event: { type: "created", data: { id: 1 } },
+        },
+        {
+          streamId: ["stream-2"],
+          eventName: "TestEvent2",
+          event: { type: "updated", data: { id: 2 } },
+        },
+      ]);
     });
 
     it("combines filters", async () => {
@@ -306,12 +369,20 @@ describe("PostgresEventStore", () => {
           event: { type: "updated", data: { id: 1 } },
         },
       ]);
+
       const result = await eventStore.read({
         streamIds: ["stream-1"],
         events: ["TestEvent1", "TestEvent2"],
         limit: 1,
       });
-      expect(result.length).toBe(1);
+
+      expect(result).toMatchObject([
+        {
+          streamId: ["stream-1"],
+          eventName: "TestEvent1",
+          event: { type: "created", data: { id: 1 } },
+        },
+      ]);
     });
   });
 
@@ -352,8 +423,8 @@ describe("PostgresEventStore", () => {
       const successes = results.filter((r) => Array.isArray(r));
       const failures = results.filter((r) => r instanceof Error);
 
-      expect(successes.length).toBe(1);
-      expect(failures.length).toBe(4);
+      expect(successes).toHaveLength(1);
+      expect(failures).toHaveLength(4);
     });
   });
 });
