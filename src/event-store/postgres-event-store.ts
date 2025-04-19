@@ -13,7 +13,8 @@ export class PostgresEventStore<E> implements EventStore<E> {
   }
 
   async init(): Promise<void> {
-    await this.sql.begin(async (sql) => [
+    const sql = this.sql;
+    await sql.begin(async (sql) => [
       await sql`CREATE SCHEMA IF NOT EXISTS ${sql.unsafe(this.schemaName)}`,
       await sql`
         CREATE TABLE IF NOT EXISTS ${sql.unsafe(this.#tableName)} (
@@ -24,9 +25,9 @@ export class PostgresEventStore<E> implements EventStore<E> {
           "Event" JSONB NOT NULL
         )
       `,
-      await sql`CREATE INDEX IF NOT EXISTS idx_events_streamid ON ${this.sql.unsafe(this.#tableName)} USING GIN("StreamID")`,
-      await sql`CREATE INDEX IF NOT EXISTS idx_events_position ON ${this.sql.unsafe(this.#tableName)} ("Position")`,
-      await sql`CREATE INDEX IF NOT EXISTS idx_events_eventname ON ${this.sql.unsafe(this.#tableName)} ("EventName")`,
+      await sql`CREATE INDEX IF NOT EXISTS idx_events_streamid ON ${sql.unsafe(this.#tableName)} USING GIN("StreamID")`,
+      await sql`CREATE INDEX IF NOT EXISTS idx_events_position ON ${sql.unsafe(this.#tableName)} ("Position")`,
+      await sql`CREATE INDEX IF NOT EXISTS idx_events_eventname ON ${sql.unsafe(this.#tableName)} ("EventName")`,
       await sql`
         CREATE OR REPLACE FUNCTION UNNEST_1D(ANYARRAY) RETURNS SETOF ANYARRAY AS $$
           SELECT ARRAY_AGG($1[d1][d2])
@@ -53,39 +54,40 @@ export class PostgresEventStore<E> implements EventStore<E> {
       payloads.push(JSON.stringify(envelope.event));
     }
 
-    const persistedRows = await this.sql<PersistedEnvelope[]>`
-      INSERT INTO ${this.sql.unsafe(this.#tableName)} (
+    const sql = this.sql;
+    const persistedRows = await sql<PersistedEnvelope[]>`
+      INSERT INTO ${sql.unsafe(this.#tableName)} (
           "StreamID",
           "EventName",
           "Event"
       ) SELECT
-          UNNEST_1D(${this.sql.array(streamIDs)}::TEXT[][]),
-          UNNEST(${this.sql.array(eventNames)}::TEXT[]),
-          UNNEST(${this.sql.array(payloads)}::JSONB[])
+          UNNEST_1D(${sql.array(streamIDs)}::TEXT[][]),
+          UNNEST(${sql.array(eventNames)}::TEXT[]),
+          UNNEST(${sql.array(payloads)}::JSONB[])
       FROM UNNEST (
           (SELECT ARRAY(SELECT PG_ADVISORY_XACT_LOCK(42)::TEXT))
       ) AS t(
           "_SerialLock"
       )
       WHERE NOT EXISTS (
-          SELECT TRUE FROM ${this.sql.unsafe(this.#tableName)}
+          SELECT TRUE FROM ${sql.unsafe(this.#tableName)}
           WHERE
           ${
             writeCondition
-              ? this.sql`
+              ? sql`
                   "Position" > ${writeCondition.lastEventPosition.toString()}
                   ${
                     writeCondition.query.streamId.length > 0
-                      ? this.sql`AND "StreamID" && ${this.sql.array(writeCondition.query.streamId)}`
-                      : this.sql``
+                      ? sql`AND "StreamID" && ${sql.array(writeCondition.query.streamId)}`
+                      : sql``
                   }
                   ${
                     (writeCondition.query.events?.length ?? 0) > 0
-                      ? this.sql`AND "EventName" IN ${this.sql(writeCondition.query.events as string[])}`
-                      : this.sql``
+                      ? sql`AND "EventName" IN ${sql(writeCondition.query.events as string[])}`
+                      : sql``
                   }
               `
-              : this.sql`
+              : sql`
                   FALSE
               `
           }
@@ -107,23 +109,24 @@ export class PostgresEventStore<E> implements EventStore<E> {
     limit = 0,
     offset,
   }: ReadCondition): Promise<PersistedEnvelope[]> {
-    return this.sql<PersistedEnvelope[]>`
+    const sql = this.sql;
+    return sql<PersistedEnvelope[]>`
             SELECT
                 "Position" as "position",
                 "Timestamp" as "timestamp",
                 "StreamID" as "streamId",
                 "EventName" as "eventName",
                 "Event" as "event"
-            FROM ${this.sql.unsafe(this.#tableName)}
+            FROM ${sql.unsafe(this.#tableName)}
             WHERE
                 TRUE
-                ${upto ? this.sql`AND "Position" <= ${upto.toString()}` : this.sql``}
-                ${offset ? this.sql`AND "Position" >= ${offset.toString()}` : this.sql``}
-                ${streamIDs.length > 0 ? this.sql`AND "StreamID" && ${this.sql.array(streamIDs)}` : this.sql``}
-                ${events.length > 0 ? this.sql`AND "EventName" IN ${this.sql(events)}` : this.sql``}
+                ${upto ? sql`AND ${sql("Position")} <= ${upto.toString()}` : sql``}
+                ${offset ? sql`AND "Position" >= ${offset.toString()}` : sql``}
+                ${streamIDs.length > 0 ? sql`AND "StreamID" && ${sql.array(streamIDs)}` : sql``}
+                ${events.length > 0 ? sql`AND "EventName" IN ${sql(events)}` : sql``}
             ORDER BY
                 "Position" ASC
-            ${this.sql`LIMIT ${limit || this.limit}`}
+            ${sql`LIMIT ${limit || this.limit}`}
         `;
   }
 }
