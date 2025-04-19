@@ -5,16 +5,13 @@ interface Clock {
 }
 
 export class InMemoryEventStore<Event> implements EventStore<Event> {
-  #clock: Clock;
   #store: PersistedEnvelope[] = [];
   #position = BigInt(0);
 
   constructor(
-    clock: Clock = { now: () => new Date() },
+    private readonly clock: Clock = { now: () => new Date() },
     private readonly limit = 1000,
-  ) {
-    this.#clock = clock;
-  }
+  ) {}
 
   async save(events: Envelope<Event>[], writeCondition?: WriteCondition): Promise<PersistedEnvelope[]> {
     if (writeCondition && writeCondition.lastEventPosition !== this.#position) {
@@ -25,7 +22,7 @@ export class InMemoryEventStore<Event> implements EventStore<Event> {
       ...event,
       streamId: Array.isArray(event.streamId) ? event.streamId : [event.streamId],
       position: ++this.#position,
-      timestamp: this.#clock.now(),
+      timestamp: this.clock.now(),
       event: event.event as Record<string, unknown>,
     }));
 
