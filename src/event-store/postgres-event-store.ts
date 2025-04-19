@@ -57,9 +57,9 @@ export class PostgresEventStore<E> implements EventStore<E> {
     const sql = this.sql;
     const persistedRows = await sql<PersistedEnvelope[]>`
       INSERT INTO ${sql.unsafe(this.#tableName)} (
-          "StreamID",
-          "EventName",
-          "Event"
+          ${sql("StreamID")},
+          ${sql("EventName")},
+          ${sql("Event")}
       ) SELECT
           UNNEST_1D(${sql.array(streamIDs)}::TEXT[][]),
           UNNEST(${sql.array(eventNames)}::TEXT[]),
@@ -75,15 +75,15 @@ export class PostgresEventStore<E> implements EventStore<E> {
           ${
             writeCondition
               ? sql`
-                  "Position" > ${writeCondition.lastEventPosition.toString()}
+                  ${sql("Position")} > ${writeCondition.lastEventPosition.toString()}
                   ${
                     writeCondition.query.streamId.length > 0
-                      ? sql`AND "StreamID" && ${sql.array(writeCondition.query.streamId)}`
+                      ? sql`AND ${sql("StreamID")} && ${sql.array(writeCondition.query.streamId)}`
                       : sql``
                   }
                   ${
                     (writeCondition.query.events?.length ?? 0) > 0
-                      ? sql`AND "EventName" IN ${sql(writeCondition.query.events as string[])}`
+                      ? sql`AND ${sql("EventName")} IN ${sql(writeCondition.query.events as string[])}`
                       : sql``
                   }
               `
@@ -92,7 +92,12 @@ export class PostgresEventStore<E> implements EventStore<E> {
               `
           }
       )
-      RETURNING "Position" as "position", "Timestamp" as "timestamp", "StreamID" as "streamId", "EventName" as "eventName", "Event" as "event";
+      RETURNING
+        ${sql("Position")} as ${sql("position")},
+        ${sql("Timestamp")} as ${sql("timestamp")},
+        ${sql("StreamID")} as ${sql("streamId")},
+        ${sql("EventName")} as ${sql("eventName")},
+        ${sql("Event")} as ${sql("event")};
     `;
 
     if (writeCondition && persistedRows.length === 0) {
@@ -112,20 +117,20 @@ export class PostgresEventStore<E> implements EventStore<E> {
     const sql = this.sql;
     return sql<PersistedEnvelope[]>`
             SELECT
-                "Position" as "position",
-                "Timestamp" as "timestamp",
-                "StreamID" as "streamId",
-                "EventName" as "eventName",
-                "Event" as "event"
+                ${sql("Position")} as ${sql("position")},
+                ${sql("Timestamp")} as ${sql("timestamp")},
+                ${sql("StreamID")} as ${sql("streamId")},
+                ${sql("EventName")} as ${sql("eventName")},
+                ${sql("Event")} as ${sql("event")}
             FROM ${sql.unsafe(this.#tableName)}
             WHERE
                 TRUE
                 ${upto ? sql`AND ${sql("Position")} <= ${upto.toString()}` : sql``}
-                ${offset ? sql`AND "Position" >= ${offset.toString()}` : sql``}
-                ${streamIDs.length > 0 ? sql`AND "StreamID" && ${sql.array(streamIDs)}` : sql``}
-                ${events.length > 0 ? sql`AND "EventName" IN ${sql(events)}` : sql``}
+                ${offset ? sql`AND ${sql("Position")} >= ${offset.toString()}` : sql``}
+                ${streamIDs.length > 0 ? sql`AND ${sql("StreamID")} && ${sql.array(streamIDs)}` : sql``}
+                ${events.length > 0 ? sql`AND ${sql("EventName")} IN ${sql(events)}` : sql``}
             ORDER BY
-                "Position" ASC
+                ${sql("Position")} ASC
             ${sql`LIMIT ${limit || this.limit}`}
         `;
   }
