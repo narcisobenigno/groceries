@@ -349,6 +349,45 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
 
         expect(result).toHaveLength(1000);
       });
+
+      it("offsets result", async () => {
+        await eventStore.save([
+          {
+            streamId: "stream-1",
+            eventName: "TestEvent1",
+            event: { type: "created", data: { id: 1 } },
+          },
+        ]);
+        const offsetBeging = await eventStore.save([
+          {
+            streamId: "stream-2",
+            eventName: "TestEvent2",
+            event: { type: "updated", data: { id: 2 } },
+          },
+        ]);
+        await eventStore.save([
+          {
+            streamId: "stream-3",
+            eventName: "TestEvent3",
+            event: { type: "created", data: { id: 3 } },
+          },
+        ]);
+        const result = await eventStore.read({ offset: offsetBeging[0].position });
+
+        expect(result).toMatchObject([
+          {
+            streamId: ["stream-2"],
+            eventName: "TestEvent2",
+            event: { type: "updated", data: { id: 2 } },
+          },
+          {
+            streamId: ["stream-3"],
+            eventName: "TestEvent3",
+            event: { type: "created", data: { id: 3 } },
+          },
+        ]);
+      });
+
       it("combines filters", async () => {
         await eventStore.save([
           {
@@ -357,25 +396,41 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
             event: { type: "created", data: { id: 1 } },
           },
         ]);
-        await eventStore.save([
+        const toOffset = await eventStore.save([
+          {
+            streamId: ["stream-1", "stream-2"],
+            eventName: "TestEvent1",
+            event: { type: "updated", data: { id: 2 } },
+          },
           {
             streamId: ["stream-1", "stream-2"],
             eventName: "TestEvent2",
-            event: { type: "updated", data: { id: 1 } },
+            event: { type: "updated", data: { id: 3 } },
+          },
+          {
+            streamId: ["stream-1", "stream-2"],
+            eventName: "TestEvent2",
+            event: { type: "updated", data: { id: 4 } },
           },
         ]);
 
         const result = await eventStore.read({
           streamIds: ["stream-1"],
           events: ["TestEvent1", "TestEvent2"],
-          limit: 1,
+          limit: 2,
+          offset: toOffset[0].position,
         });
 
         expect(result).toMatchObject([
           {
-            streamId: ["stream-1"],
+            streamId: ["stream-1", "stream-2"],
             eventName: "TestEvent1",
-            event: { type: "created", data: { id: 1 } },
+            event: { type: "updated", data: { id: 2 } },
+          },
+          {
+            streamId: ["stream-1", "stream-2"],
+            eventName: "TestEvent2",
+            event: { type: "updated", data: { id: 3 } },
           },
         ]);
       });

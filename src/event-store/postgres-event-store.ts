@@ -100,7 +100,13 @@ export class PostgresEventStore<E> implements EventStore<E> {
     return persistedRows;
   }
 
-  async read({ upto, streamIds: streamIDs = [], events = [], limit = 0 }: ReadCondition): Promise<PersistedEnvelope[]> {
+  async read({
+    upto,
+    streamIds: streamIDs = [],
+    events = [],
+    limit = 0,
+    offset,
+  }: ReadCondition): Promise<PersistedEnvelope[]> {
     return this.sql<PersistedEnvelope[]>`
             SELECT
                 "Position" as "position",
@@ -112,6 +118,7 @@ export class PostgresEventStore<E> implements EventStore<E> {
             WHERE
                 TRUE
                 ${upto ? this.sql`AND "Position" <= ${upto.toString()}` : this.sql``}
+                ${offset ? this.sql`AND "Position" >= ${offset.toString()}` : this.sql``}
                 ${streamIDs.length > 0 ? this.sql`AND "StreamID" && ${this.sql.array(streamIDs)}` : this.sql``}
                 ${events.length > 0 ? this.sql`AND "EventName" IN ${this.sql(events)}` : this.sql``}
             ORDER BY
