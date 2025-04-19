@@ -34,13 +34,10 @@ export class InMemoryEventStore<Event> implements EventStore<Event> {
   async read(conditions: ReadCondition): Promise<PersistedEnvelope[]> {
     const { upto, streamIds, events, limit } = conditions;
 
-    const filtered = this.#store.filter((event) => {
-      const isWithinStreamIds = streamIds ? streamIds.some((streamId) => event.streamId.includes(streamId)) : true;
-      const isWithinEvents = events ? events.includes(event.eventName) : true;
-      const isWithinUpto = upto ? event.position <= upto : true;
-
-      return isWithinStreamIds && isWithinEvents && isWithinUpto;
-    });
+    const filtered = this.#store
+      .filter((event) => !streamIds || streamIds.some((streamId) => event.streamId.includes(streamId)))
+      .filter((event) => !events || events.includes(event.eventName))
+      .filter((event) => !upto || event.position <= upto);
 
     if (limit) {
       return filtered.slice(0, limit);
