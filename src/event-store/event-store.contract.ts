@@ -351,14 +351,14 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
       });
 
       it("offsets result", async () => {
-        await eventStore.save([
+        const offsetBeging = await eventStore.save([
           {
             streamId: "stream-1",
             eventName: "TestEvent1",
             event: { type: "created", data: { id: 1 } },
           },
         ]);
-        const offsetBeging = await eventStore.save([
+        await eventStore.save([
           {
             streamId: "stream-2",
             eventName: "TestEvent2",
@@ -389,17 +389,15 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
       });
 
       it("combines filters", async () => {
-        await eventStore.save([
-          {
-            streamId: "stream-1",
-            eventName: "TestEvent1",
-            event: { type: "created", data: { id: 1 } },
-          },
-        ]);
         const toOffset = await eventStore.save([
           {
             streamId: ["stream-1", "stream-2"],
             eventName: "TestEvent1",
+            event: { type: "created", data: { id: 1 } },
+          },
+          {
+            streamId: ["stream-1", "stream-2"],
+            eventName: "TestEvent2",
             event: { type: "updated", data: { id: 2 } },
           },
           {
@@ -424,7 +422,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
         expect(result).toMatchObject([
           {
             streamId: ["stream-1", "stream-2"],
-            eventName: "TestEvent1",
+            eventName: "TestEvent2",
             event: { type: "updated", data: { id: 2 } },
           },
           {

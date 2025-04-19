@@ -38,7 +38,7 @@ export class InMemoryEventStore<Event> implements EventStore<Event> {
       .filter((event) => !streamIds || streamIds.some((streamId) => event.streamId.includes(streamId)))
       .filter((event) => !events || events.includes(event.eventName))
       .filter((event) => !upto || event.position <= upto)
-      .filter((event) => !offset || event.position >= offset);
+      .filter((event) => !offset || event.position > offset);
 
     return filtered.slice(0, limit ?? this.limit);
   }

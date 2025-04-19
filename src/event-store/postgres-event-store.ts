@@ -126,7 +126,7 @@ export class PostgresEventStore<E> implements EventStore<E> {
             WHERE
                 TRUE
                 ${upto ? sql`AND ${sql("Position")} <= ${upto.toString()}` : sql``}
-                ${offset ? sql`AND ${sql("Position")} >= ${offset.toString()}` : sql``}
+                ${offset ? sql`AND ${sql("Position")} > ${offset.toString()}` : sql``}
                 ${streamIDs.length > 0 ? sql`AND ${sql("StreamID")} && ${sql.array(streamIDs)}` : sql``}
                 ${events.length > 0 ? sql`AND ${sql("EventName")} IN ${sql(events)}` : sql``}
             ORDER BY
