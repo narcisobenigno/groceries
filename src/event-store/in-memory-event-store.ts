@@ -9,7 +9,10 @@ export class InMemoryEventStore<Event> implements EventStore<Event> {
   #store: PersistedEnvelope[] = [];
   #position = BigInt(0);
 
-  constructor(clock: Clock = { now: () => new Date() }) {
+  constructor(
+    clock: Clock = { now: () => new Date() },
+    private readonly limit = 1000,
+  ) {
     this.#clock = clock;
   }
 
@@ -39,9 +42,6 @@ export class InMemoryEventStore<Event> implements EventStore<Event> {
       .filter((event) => !events || events.includes(event.eventName))
       .filter((event) => !upto || event.position <= upto);
 
-    if (limit) {
-      return filtered.slice(0, limit);
-    }
-    return filtered;
+    return filtered.slice(0, limit ?? this.limit);
   }
 }

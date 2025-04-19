@@ -6,7 +6,11 @@ export class PostgresEventStore<E> implements EventStore<E> {
   #tableName: string;
   #sql: Sql;
 
-  constructor(schemaName: string, sql: Sql) {
+  constructor(
+    schemaName: string,
+    sql: Sql,
+    private readonly limit: number = 1000,
+  ) {
     this.#schemaName = schemaName;
     this.#tableName = `${schemaName}."Events"`;
     this.#sql = sql;
@@ -116,7 +120,7 @@ export class PostgresEventStore<E> implements EventStore<E> {
                 ${events.length > 0 ? this.#sql`AND "EventName" IN ${this.#sql(events)}` : this.#sql``}
             ORDER BY
                 "Position" ASC
-            ${limit > 0 ? this.#sql`LIMIT ${limit}` : this.#sql``}
+            ${this.#sql`LIMIT ${limit || this.limit}`}
         `;
   }
 }

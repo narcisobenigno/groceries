@@ -335,6 +335,20 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
         ]);
       });
 
+      it("limits results by default in 1000", async () => {
+        for (let i = 0; i < 1001; i++) {
+          await eventStore.save([
+            {
+              streamId: `stream-${i}`,
+              eventName: `TestEvent${i}`,
+              event: { type: "created", data: { id: i } },
+            },
+          ]);
+        }
+        const result = await eventStore.read({});
+
+        expect(result).toHaveLength(1000);
+      });
       it("combines filters", async () => {
         await eventStore.save([
           {
