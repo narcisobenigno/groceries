@@ -114,23 +114,23 @@ export class PostgresEventStore<E> implements EventStore<E> {
   }: ReadCondition): Promise<PersistedEnvelope[]> {
     const sql = this.sql;
     await sql`SET search_path TO ${sql(this.schemaName)}`;
-    return sql<PersistedEnvelope[]>`
-            SELECT
-                "Position" as "position",
-                "Timestamp" as "timestamp",
-                "StreamID" as "streamId",
-                "Type" as "type",
-                "Event" as "event"
-            FROM "Events"
-            WHERE
-                TRUE
-                ${upto ? sql`AND "Position" <= ${upto.toString()}` : sql``}
-                ${offset ? sql`AND "Position" > ${offset.toString()}` : sql``}
-                ${streamIDs.length > 0 ? sql`AND "StreamID" && ${sql.array(streamIDs)}` : sql``}
-                ${events.length > 0 ? sql`AND "Type" IN ${sql(events)}` : sql``}
-            ORDER BY
-                "Position" ASC
-            ${sql`LIMIT ${limit || this.limit}`}
-        `;
+    return await sql<PersistedEnvelope[]>`
+      SELECT
+          "Position" as "position",
+          "Timestamp" as "timestamp",
+          "StreamID" as "streamId",
+          "Type" as "type",
+          "Event" as "event"
+      FROM "Events"
+      WHERE
+          TRUE
+          ${upto ? sql`AND "Position" <= ${upto.toString()}` : sql``}
+          ${offset ? sql`AND "Position" > ${offset.toString()}` : sql``}
+          ${streamIDs.length > 0 ? sql`AND "StreamID" && ${sql.array(streamIDs)}` : sql``}
+          ${events.length > 0 ? sql`AND "Type" IN ${sql(events)}` : sql``}
+      ORDER BY
+          "Position" ASC
+      ${sql`LIMIT ${limit || this.limit}`}
+    `;
   }
 }

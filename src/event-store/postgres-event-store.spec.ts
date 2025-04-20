@@ -17,7 +17,16 @@ describe("PostgresEventStore", () => {
   });
 
   beforeEach(async () => {
-    sql = postgres(container.getConnectionUri());
+    sql = postgres(container.getConnectionUri(), {
+      types: {
+        bigint: {
+          to: 20,
+          from: [20],
+          serialize: (x: bigint) => x.toString(),
+          parse: (x: string) => BigInt(x),
+        },
+      },
+    });
     const schemaName = `events${Math.floor(Math.random() * 100000)}`;
 
     eventStore = new PostgresEventStore<TestEvent>(schemaName, sql);

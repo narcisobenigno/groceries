@@ -28,6 +28,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
             streamId: ["stream-1"],
             type: "TestEvent",
             event: { type: "created", data: { foo: "bar" } },
+            position: 1n,
           },
         ]);
       });
