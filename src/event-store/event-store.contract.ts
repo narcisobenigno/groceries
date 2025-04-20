@@ -52,11 +52,13 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
             streamId: ["stream-1", "stream-2"],
             type: "TestEvent1",
             event: { type: "created", data: { foo: "bar" } },
+            position: 1n,
           },
           {
             streamId: ["stream-1", "stream-2"],
             type: "TestEvent2",
             event: { type: "updated", data: { foo: "baz" } },
+            position: 2n,
           },
         ]);
       });
@@ -121,6 +123,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
             streamId: ["stream-1"],
             type: "TestEvent2",
             event: { type: "updated", data: { foo: "baz" } },
+            position: 2n,
           },
         ]);
       });
@@ -148,11 +151,13 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
             streamId: ["stream-1"],
             type: "TestEvent1",
             event: { type: "created", data: { id: 1 } },
+            position: 1n,
           },
           {
             streamId: ["stream-1", "stream-2"],
             type: "TestEvent2",
             event: { type: "updated", data: { id: 1 } },
+            position: 2n,
           },
         ]);
       });
@@ -185,11 +190,13 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
             streamId: ["stream-1"],
             type: "TestEvent1",
             event: { type: "created", data: { id: 1 } },
+            position: 1n,
           },
           {
             streamId: ["stream-1", "stream-2"],
             type: "TestEvent2",
             event: { type: "updated", data: { id: 2 } },
+            position: 2n,
           },
         ]);
       });
@@ -201,8 +208,6 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
             type: "TestEvent1",
             event: { type: "created", data: { id: 1 } },
           },
-        ]);
-        await eventStore.save([
           {
             streamId: "stream-2",
             type: "TestEvent2",
@@ -215,11 +220,13 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
             streamId: ["stream-1"],
             type: "TestEvent1",
             event: { type: "created", data: { id: 1 } },
+            position: 1n,
           },
           {
             streamId: ["stream-2"],
             type: "TestEvent2",
             event: { type: "updated", data: { id: 2 } },
+            position: 2n,
           },
         ]);
       });
@@ -245,6 +252,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
             streamId: ["stream-2"],
             type: "TestEvent2",
             event: { type: "updated", data: { id: 2 } },
+            position: 2n,
           },
         ]);
       });
@@ -256,34 +264,30 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
             type: "TestEvent1",
             event: { type: "created", data: { id: 1 } },
           },
-        ]);
-        await eventStore.save([
           {
             streamId: "stream-2",
             type: "TestEvent2",
             event: { type: "updated", data: { id: 2 } },
           },
-        ]);
-        await eventStore.save([
           {
             streamId: "stream-3",
             type: "TestEvent3",
             event: { type: "created", data: { id: 3 } },
           },
         ]);
-        const allEvents = await eventStore.read({});
-        expect(allEvents).toHaveLength(3);
 
-        await expect(eventStore.read({ upto: allEvents[1].position })).resolves.toMatchObject([
+        await expect(eventStore.read({ upto: 2n })).resolves.toMatchObject([
           {
             streamId: ["stream-1"],
             type: "TestEvent1",
             event: { type: "created", data: { id: 1 } },
+            position: 1n,
           },
           {
             streamId: ["stream-2"],
             type: "TestEvent2",
             event: { type: "updated", data: { id: 2 } },
+            position: 2n,
           },
         ]);
       });
@@ -316,11 +320,13 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
             streamId: ["stream-1"],
             type: "TestEvent1",
             event: { type: "created", data: { id: 1 } },
+            position: 1n,
           },
           {
             streamId: ["stream-2"],
             type: "TestEvent2",
             event: { type: "updated", data: { id: 2 } },
+            position: 2n,
           },
         ]);
       });
@@ -335,9 +341,8 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
           });
         }
         await eventStore.save(events);
-        const result = await eventStore.read({});
 
-        expect(result).toHaveLength(1000);
+        await expect(eventStore.read({})).resolves.toHaveLength(1000);
       });
 
       it("offsets result", async () => {
@@ -364,11 +369,13 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
             streamId: ["stream-2"],
             type: "TestEvent2",
             event: { type: "updated", data: { id: 2 } },
+            position: 2n,
           },
           {
             streamId: ["stream-3"],
             type: "TestEvent3",
             event: { type: "created", data: { id: 3 } },
+            position: 3n,
           },
         ]);
       });
@@ -404,11 +411,13 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
             streamId: ["stream-1", "stream-2"],
             type: "TestEvent2",
             event: { type: "updated", data: { id: 2 } },
+            position: 2n,
           },
           {
             streamId: ["stream-1", "stream-2"],
             type: "TestEvent2",
             event: { type: "updated", data: { id: 3 } },
+            position: 3n,
           },
         ]);
       });
