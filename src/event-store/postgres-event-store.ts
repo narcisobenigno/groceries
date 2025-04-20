@@ -47,7 +47,6 @@ export const PostgresEventStore = async <E>(
         payloads.push(JSON.stringify(envelope.event));
       }
 
-      await sql`SET search_path TO ${sql(schemaName)}`;
       const persistedRows = await sql<PersistedEnvelope[]>`
       INSERT INTO "Events" (
           "StreamID",
@@ -109,7 +108,6 @@ export const PostgresEventStore = async <E>(
       limit = 0,
       offset,
     }: ReadCondition): Promise<PersistedEnvelope[]> => {
-      await sql`SET search_path TO ${sql(schemaName)}`;
       return await sql<PersistedEnvelope[]>`
       SELECT
           "Position" as "position",
