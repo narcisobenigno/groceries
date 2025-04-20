@@ -31,8 +31,9 @@ export class PostgresProjection<E> {
     ]);
   }
 
-  async start(): Promise<void> {
+  async start(): Promise<boolean> {
     const sql = this.sql;
+    let totalProjected = 0;
     await sql.begin(async (sql) => {
       const position = await sql<Position[]>`SELECT position FROM "_position" WHERE name = '${sql(this.schemaName)}'`;
 
@@ -41,10 +42,15 @@ export class PostgresProjection<E> {
       for (const event of events) {
         queries.push(...(await this.project.project(sql, event)));
       }
+
+      totalProjected = events.length;
+
       return [
         ...queries,
         await sql`UPDATE "_position" SET "position" = ${events[events.length - 1].position.toString()} WHERE name = '${sql(this.schemaName)}'`,
       ];
     });
+
+    return totalProjected === this.limit;
   }
 }
