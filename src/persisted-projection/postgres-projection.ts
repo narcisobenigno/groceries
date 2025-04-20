@@ -11,46 +11,42 @@ type Position = {
   position: bigint;
 };
 
-export class PostgresProjection<E> {
-  constructor(
-    private readonly schemaName: string,
-    private readonly sql: Sql,
-    private readonly eventStore: EventStore<E>,
-    private readonly project: Project,
-    private readonly limit: number = 1000,
-  ) {}
+export const PostgresProjection = async <E>(
+  schemaName: string,
+  sql: Sql,
+  eventStore: EventStore<E>,
+  project: Project,
+  limit = 1000,
+) => {
+  await sql.begin(async (sql) => [
+    await sql`CREATE SCHEMA IF NOT EXISTS ${sql(schemaName)}`,
+    await sql`SET search_path TO ${sql(schemaName)}`,
+    await sql`CREATE TABLE IF NOT EXISTS _position (name TEXT PRIMARY KEY, position BIGSERIAL)`,
+    await sql`INSERT INTO "_position" (name, position) VALUES ('${sql(schemaName)}', 0) ON CONFLICT DO NOTHING`,
+    ...(await project.init(sql)),
+  ]);
 
-  async init(): Promise<void> {
-    const sql = this.sql;
-    await sql.begin(async (sql) => [
-      await sql`CREATE SCHEMA IF NOT EXISTS ${sql(this.schemaName)}`,
-      await sql`SET search_path TO ${sql(this.schemaName)}`,
-      await sql`CREATE TABLE IF NOT EXISTS _position (name TEXT PRIMARY KEY, position BIGSERIAL)`,
-      await sql`INSERT INTO "_position" (name, position) VALUES ('${sql(this.schemaName)}', 0) ON CONFLICT DO NOTHING`,
-      ...(await this.project.init(sql)),
-    ]);
-  }
+  return {
+    start: async (): Promise<boolean> => {
+      let totalProjected = 0;
+      await sql.begin(async (sql) => {
+        const position = await sql<Position[]>`SELECT position FROM "_position" WHERE name = '${sql(schemaName)}'`;
 
-  async start(): Promise<boolean> {
-    const sql = this.sql;
-    let totalProjected = 0;
-    await sql.begin(async (sql) => {
-      const position = await sql<Position[]>`SELECT position FROM "_position" WHERE name = '${sql(this.schemaName)}'`;
+        const events = await eventStore.read({ limit, offset: position[0].position });
+        const queries: postgres.Row[] = [];
+        for (const event of events) {
+          queries.push(...(await project.project(sql, event)));
+        }
 
-      const events = await this.eventStore.read({ limit: this.limit, offset: position[0].position });
-      const queries: postgres.Row[] = [];
-      for (const event of events) {
-        queries.push(...(await this.project.project(sql, event)));
-      }
+        totalProjected = events.length;
 
-      totalProjected = events.length;
+        return [
+          ...queries,
+          await sql`UPDATE "_position" SET "position" = ${events[events.length - 1].position.toString()} WHERE name = '${sql(schemaName)}'`,
+        ];
+      });
 
-      return [
-        ...queries,
-        await sql`UPDATE "_position" SET "position" = ${events[events.length - 1].position.toString()} WHERE name = '${sql(this.schemaName)}'`,
-      ];
-    });
-
-    return totalProjected === this.limit;
-  }
-}
+      return totalProjected === limit;
+    },
+  };
+};

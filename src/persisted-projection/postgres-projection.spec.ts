@@ -27,8 +27,7 @@ describe("PostgresProjector", () => {
   it("projects events", async () => {
     const eventStore = new InMemoryEventStore<TestEvents>();
 
-    const projector = new PostgresProjection(schemaName, sql, eventStore, new TestProject());
-    await projector.init();
+    const projector = await PostgresProjection(schemaName, sql, eventStore, new TestProject());
 
     await eventStore.save([
       {
@@ -60,8 +59,7 @@ describe("PostgresProjector", () => {
   it("projects up to the limit", async () => {
     const eventStore = new InMemoryEventStore<TestEvents>();
 
-    const projector = new PostgresProjection(schemaName, sql, eventStore, new TestProject(), 2);
-    await projector.init();
+    const projector = await PostgresProjection(schemaName, sql, eventStore, new TestProject(), 2);
 
     await eventStore.save([
       {
@@ -90,8 +88,7 @@ describe("PostgresProjector", () => {
   it("projects from where it left off", async () => {
     const eventStore = new InMemoryEventStore<TestEvents>();
 
-    const projector = new PostgresProjection(schemaName, sql, eventStore, new TestProject(), 2);
-    await projector.init();
+    const projector = await PostgresProjection(schemaName, sql, eventStore, new TestProject(), 2);
 
     await eventStore.save([
       {
@@ -124,8 +121,7 @@ describe("PostgresProjector", () => {
   it("returns true when events projected up until limit", async () => {
     const eventStore = new InMemoryEventStore<TestEvents>();
 
-    const projector = new PostgresProjection(schemaName, sql, eventStore, new TestProject(), 2);
-    await projector.init();
+    const projector = await PostgresProjection(schemaName, sql, eventStore, new TestProject(), 2);
 
     await eventStore.save([
       {
@@ -147,8 +143,7 @@ describe("PostgresProjector", () => {
   it("returns false when events projected less than limit", async () => {
     const eventStore = new InMemoryEventStore<TestEvents>();
 
-    const projector = new PostgresProjection(schemaName, sql, eventStore, new TestProject(), 2);
-    await projector.init();
+    const projector = await PostgresProjection(schemaName, sql, eventStore, new TestProject(), 2);
 
     await eventStore.save([
       {
