@@ -29,7 +29,7 @@ export class PostgresProjection<E> {
 
   async start(): Promise<void> {
     await this.sql.begin(async (sql) => {
-      const events = await this.eventStore.read({});
+      const events = await this.eventStore.read({ limit: this.limit });
       const queries: postgres.Row[] = [];
       for (const event of events) {
         queries.push(...(await this.project.project(sql, event)));

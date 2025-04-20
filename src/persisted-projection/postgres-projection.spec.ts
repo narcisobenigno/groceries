@@ -56,6 +56,36 @@ describe("PostgresProjector", () => {
       { numberId: "stream_4321", value: 4 },
     ]);
   });
+
+  it("projects up to the limit", async () => {
+    const eventStore = new InMemoryEventStore<TestEvents>();
+
+    const projector = new PostgresProjection(schemaName, sql, eventStore, new TestProject(), 2);
+    await projector.init();
+
+    await eventStore.save([
+      {
+        streamId: ["stream_1234"],
+        type: "created",
+        event: { type: "created", numberId: "stream_123", value: 1 },
+      },
+      {
+        streamId: ["stream_1234"],
+        type: "added",
+        event: { type: "added", numberId: "stream_123", value: 2 },
+      },
+      {
+        streamId: ["stream_4321"],
+        type: "created",
+        event: { type: "created", numberId: "stream_4321", value: 4 },
+      },
+    ]);
+
+    await projector.start();
+
+    const projections = await read(sql, schemaName);
+    expect(projections).toEqual([{ numberId: "stream_123", value: 3 }]);
+  });
 });
 
 type CreatedEvent = {
