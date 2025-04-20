@@ -1,4 +1,4 @@
-import type { EventStore, PersistedEnvelope } from "./event-store";
+import type { Envelope, EventStore, PersistedEnvelope } from "./event-store";
 
 export interface TestEvent {
   type: string;
@@ -15,15 +15,15 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
 
     describe("save", () => {
       it("inserts a single event", async () => {
-        const event = {
-          streamId: "stream-1",
-          type: "TestEvent",
-          event: { type: "created", data: { foo: "bar" } },
-        };
+        await eventStore.save([
+          {
+            streamId: "stream-1",
+            type: "TestEvent",
+            event: { type: "created", data: { foo: "bar" } },
+          },
+        ]);
 
-        const result = await eventStore.save([event]);
-
-        expect(result).toMatchObject([
+        await expect(eventStore.read({})).resolves.toMatchObject([
           {
             streamId: ["stream-1"],
             type: "TestEvent",
@@ -33,7 +33,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
       });
 
       it("inserts multiple events in bulk", async () => {
-        const events = [
+        await eventStore.save([
           {
             streamId: ["stream-1", "stream-2"],
             type: "TestEvent1",
@@ -44,11 +44,9 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
             type: "TestEvent2",
             event: { type: "updated", data: { foo: "baz" } },
           },
-        ];
+        ]);
 
-        const result = await eventStore.save(events);
-
-        expect(result).toMatchObject([
+        await expect(eventStore.read({})).resolves.toMatchObject([
           {
             streamId: ["stream-1", "stream-2"],
             type: "TestEvent1",
@@ -92,7 +90,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
       });
 
       it("succeeds when write condition passes", async () => {
-        const [firstEvent] = await eventStore.save([
+        await eventStore.save([
           {
             streamId: "stream-1",
             type: "TestEvent",
@@ -100,7 +98,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
           },
         ]);
 
-        const result = await eventStore.save(
+        await eventStore.save(
           [
             {
               streamId: "stream-1",
@@ -109,7 +107,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
             },
           ],
           {
-            lastEventPosition: firstEvent.position,
+            lastEventPosition: 1n,
             query: {
               streamId: ["stream-1"],
               events: ["TestEvent"],
@@ -117,7 +115,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
           },
         );
 
-        expect(result).toMatchObject([
+        await expect(eventStore.read({ offset: 1n })).resolves.toMatchObject([
           {
             streamId: ["stream-1"],
             type: "TestEvent2",
@@ -144,9 +142,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
           },
         ]);
 
-        const result = await eventStore.read({});
-
-        expect(result).toMatchObject([
+        await expect(eventStore.read({})).resolves.toMatchObject([
           {
             streamId: ["stream-1"],
             type: "TestEvent1",
@@ -182,9 +178,8 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
             event: { type: "created", data: { id: 1 } },
           },
         ]);
-        const result = await eventStore.read({ streamIds: ["stream-1"] });
 
-        expect(result).toMatchObject([
+        await expect(eventStore.read({ streamIds: ["stream-1"] })).resolves.toMatchObject([
           {
             streamId: ["stream-1"],
             type: "TestEvent1",
@@ -214,9 +209,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
           },
         ]);
 
-        const result = await eventStore.read({ streamIds: ["stream-1", "stream-2"] });
-
-        expect(result).toMatchObject([
+        await expect(eventStore.read({ streamIds: ["stream-1", "stream-2"] })).resolves.toMatchObject([
           {
             streamId: ["stream-1"],
             type: "TestEvent1",
@@ -246,9 +239,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
           },
         ]);
 
-        const result = await eventStore.read({ events: ["TestEvent2"] });
-
-        expect(result).toMatchObject([
+        await expect(eventStore.read({ events: ["TestEvent2"] })).resolves.toMatchObject([
           {
             streamId: ["stream-2"],
             type: "TestEvent2",
@@ -282,8 +273,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
         const allEvents = await eventStore.read({});
         expect(allEvents).toHaveLength(3);
 
-        const result = await eventStore.read({ upto: allEvents[1].position });
-        expect(result).toMatchObject([
+        await expect(eventStore.read({ upto: allEvents[1].position })).resolves.toMatchObject([
           {
             streamId: ["stream-1"],
             type: "TestEvent1",
@@ -319,9 +309,8 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
             event: { type: "created", data: { id: 3 } },
           },
         ]);
-        const result = await eventStore.read({ limit: 2 });
 
-        expect(result).toMatchObject([
+        await expect(eventStore.read({ limit: 2 })).resolves.toMatchObject([
           {
             streamId: ["stream-1"],
             type: "TestEvent1",
@@ -336,45 +325,40 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
       });
 
       it("limits results by default in 1000", async () => {
+        const events: Envelope<TestEvent>[] = [];
         for (let i = 0; i < 1001; i++) {
-          await eventStore.save([
-            {
-              streamId: `stream-${i}`,
-              type: `TestEvent${i}`,
-              event: { type: "created", data: { id: i } },
-            },
-          ]);
+          events.push({
+            streamId: `stream-${i}`,
+            type: "created",
+            event: { type: "created", data: { id: i } },
+          });
         }
+        await eventStore.save(events);
         const result = await eventStore.read({});
 
         expect(result).toHaveLength(1000);
       });
 
       it("offsets result", async () => {
-        const offsetBeging = await eventStore.save([
+        await eventStore.save([
           {
             streamId: "stream-1",
             type: "TestEvent1",
             event: { type: "created", data: { id: 1 } },
           },
-        ]);
-        await eventStore.save([
           {
             streamId: "stream-2",
             type: "TestEvent2",
             event: { type: "updated", data: { id: 2 } },
           },
-        ]);
-        await eventStore.save([
           {
             streamId: "stream-3",
             type: "TestEvent3",
             event: { type: "created", data: { id: 3 } },
           },
         ]);
-        const result = await eventStore.read({ offset: offsetBeging[0].position });
 
-        expect(result).toMatchObject([
+        await expect(eventStore.read({ offset: 1n })).resolves.toMatchObject([
           {
             streamId: ["stream-2"],
             type: "TestEvent2",
@@ -389,7 +373,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
       });
 
       it("combines filters", async () => {
-        const toOffset = await eventStore.save([
+        await eventStore.save([
           {
             streamId: ["stream-1", "stream-2"],
             type: "TestEvent1",
@@ -412,14 +396,9 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
           },
         ]);
 
-        const result = await eventStore.read({
-          streamIds: ["stream-1"],
-          events: ["TestEvent1", "TestEvent2"],
-          limit: 2,
-          offset: toOffset[0].position,
-        });
-
-        expect(result).toMatchObject([
+        await expect(
+          eventStore.read({ streamIds: ["stream-1"], events: ["TestEvent1", "TestEvent2"], limit: 2, offset: 1n }),
+        ).resolves.toMatchObject([
           {
             streamId: ["stream-1", "stream-2"],
             type: "TestEvent2",
@@ -436,14 +415,15 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
 
     describe("concurrency", () => {
       it("prevents concurrent modifications to the same stream", async () => {
-        let concurrentOperations: Promise<PersistedEnvelope[]>[] = [];
-        const saved = await eventStore.save([
+        await eventStore.save([
           {
             streamId: "concurrent-stream",
             type: "EventHappened",
             event: { type: "concurrent", data: 1 },
           },
         ]);
+
+        let concurrentOperations: Promise<PersistedEnvelope[]>[] = [];
         for (const i in Array(5).fill(0)) {
           concurrentOperations = [
             ...concurrentOperations,
@@ -457,7 +437,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
               ],
 
               {
-                lastEventPosition: saved[0].position,
+                lastEventPosition: 1n,
                 query: {
                   streamId: ["concurrent-stream"],
                 },
