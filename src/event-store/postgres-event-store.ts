@@ -2,22 +2,19 @@ import type { Sql } from "postgres";
 import type { Envelope, EventStore, PersistedEnvelope, ReadCondition, WriteCondition } from "./event-store";
 
 export class PostgresEventStore<E> implements EventStore<E> {
-  #tableName: string;
-
   constructor(
     private readonly schemaName: string,
     private readonly sql: Sql,
     private readonly limit: number = 1000,
-  ) {
-    this.#tableName = `${schemaName}."Events"`;
-  }
+  ) {}
 
   async init(): Promise<void> {
     const sql = this.sql;
     await sql.begin(async (sql) => [
+      await sql`SET search_path TO ${sql(this.schemaName)}`,
       await sql`CREATE SCHEMA IF NOT EXISTS ${sql.unsafe(this.schemaName)}`,
       await sql`
-        CREATE TABLE IF NOT EXISTS ${sql.unsafe(this.#tableName)} (
+        CREATE TABLE IF NOT EXISTS "Events" (
           "Position" BIGSERIAL PRIMARY KEY,
           "Timestamp" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
           "StreamID" TEXT[] NOT NULL,
@@ -25,9 +22,9 @@ export class PostgresEventStore<E> implements EventStore<E> {
           "Event" JSONB NOT NULL
         )
       `,
-      await sql`CREATE INDEX IF NOT EXISTS idx_events_streamid ON ${sql.unsafe(this.#tableName)} USING GIN("StreamID")`,
-      await sql`CREATE INDEX IF NOT EXISTS idx_events_position ON ${sql.unsafe(this.#tableName)} ("Position")`,
-      await sql`CREATE INDEX IF NOT EXISTS idx_events_eventname ON ${sql.unsafe(this.#tableName)} ("Type")`,
+      await sql`CREATE INDEX IF NOT EXISTS idx_events_streamid ON "Events" USING GIN("StreamID")`,
+      await sql`CREATE INDEX IF NOT EXISTS idx_events_position ON "Events" ("Position")`,
+      await sql`CREATE INDEX IF NOT EXISTS idx_events_eventname ON "Events" ("Type")`,
       await sql`
         CREATE OR REPLACE FUNCTION UNNEST_1D(ANYARRAY) RETURNS SETOF ANYARRAY AS $$
           SELECT ARRAY_AGG($1[d1][d2])
@@ -55,11 +52,12 @@ export class PostgresEventStore<E> implements EventStore<E> {
     }
 
     const sql = this.sql;
+    await sql`SET search_path TO ${sql(this.schemaName)}`;
     const persistedRows = await sql<PersistedEnvelope[]>`
-      INSERT INTO ${sql.unsafe(this.#tableName)} (
-          ${sql("StreamID")},
-          ${sql("Type")},
-          ${sql("Event")}
+      INSERT INTO "Events" (
+          "StreamID",
+          "Type",
+          "Event"
       ) SELECT
           UNNEST_1D(${sql.array(streamIDs)}::TEXT[][]),
           UNNEST(${sql.array(eventNames)}::TEXT[]),
@@ -70,20 +68,20 @@ export class PostgresEventStore<E> implements EventStore<E> {
           "_SerialLock"
       )
       WHERE NOT EXISTS (
-          SELECT TRUE FROM ${sql.unsafe(this.#tableName)}
+          SELECT TRUE FROM "Events"
           WHERE
           ${
             writeCondition
               ? sql`
-                  ${sql("Position")} > ${writeCondition.lastEventPosition.toString()}
+                  "Position" > ${writeCondition.lastEventPosition.toString()}
                   ${
                     writeCondition.query.streamId.length > 0
-                      ? sql`AND ${sql("StreamID")} && ${sql.array(writeCondition.query.streamId)}`
+                      ? sql`AND "StreamID" && ${sql.array(writeCondition.query.streamId)}`
                       : sql``
                   }
                   ${
                     (writeCondition.query.events?.length ?? 0) > 0
-                      ? sql`AND ${sql("Type")} IN ${sql(writeCondition.query.events as string[])}`
+                      ? sql`AND "Type" IN ${sql(writeCondition.query.events as string[])}`
                       : sql``
                   }
               `
@@ -93,11 +91,11 @@ export class PostgresEventStore<E> implements EventStore<E> {
           }
       )
       RETURNING
-        ${sql("Position")} as ${sql("position")},
-        ${sql("Timestamp")} as ${sql("timestamp")},
-        ${sql("StreamID")} as ${sql("streamId")},
-        ${sql("Type")} as ${sql("type")},
-        ${sql("Event")} as ${sql("event")};
+        "Position" as "position",
+        "Timestamp" as "timestamp",
+        "StreamID" as "streamId",
+        "Type" as "type",
+        "Event" as "event";
     `;
 
     if (writeCondition && persistedRows.length === 0) {
@@ -115,22 +113,23 @@ export class PostgresEventStore<E> implements EventStore<E> {
     offset,
   }: ReadCondition): Promise<PersistedEnvelope[]> {
     const sql = this.sql;
+    await sql`SET search_path TO ${sql(this.schemaName)}`;
     return sql<PersistedEnvelope[]>`
             SELECT
-                ${sql("Position")} as ${sql("position")},
-                ${sql("Timestamp")} as ${sql("timestamp")},
-                ${sql("StreamID")} as ${sql("streamId")},
-                ${sql("Type")} as ${sql("type")},
-                ${sql("Event")} as ${sql("event")}
-            FROM ${sql.unsafe(this.#tableName)}
+                "Position" as "position",
+                "Timestamp" as "timestamp",
+                "StreamID" as "streamId",
+                "Type" as "type",
+                "Event" as "event"
+            FROM "Events"
             WHERE
                 TRUE
-                ${upto ? sql`AND ${sql("Position")} <= ${upto.toString()}` : sql``}
-                ${offset ? sql`AND ${sql("Position")} > ${offset.toString()}` : sql``}
-                ${streamIDs.length > 0 ? sql`AND ${sql("StreamID")} && ${sql.array(streamIDs)}` : sql``}
-                ${events.length > 0 ? sql`AND ${sql("Type")} IN ${sql(events)}` : sql``}
+                ${upto ? sql`AND "Position" <= ${upto.toString()}` : sql``}
+                ${offset ? sql`AND "Position" > ${offset.toString()}` : sql``}
+                ${streamIDs.length > 0 ? sql`AND "StreamID" && ${sql.array(streamIDs)}` : sql``}
+                ${events.length > 0 ? sql`AND "Type" IN ${sql(events)}` : sql``}
             ORDER BY
-                ${sql("Position")} ASC
+                "Position" ASC
             ${sql`LIMIT ${limit || this.limit}`}
         `;
   }
