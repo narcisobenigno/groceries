@@ -11,13 +11,15 @@ type Position = {
   position: bigint;
 };
 
-export const PostgresProjection = async <E>(
-  schemaName: string,
-  sql: Sql,
-  eventStore: EventStore<E>,
-  project: Project,
-  limit = 1000,
-) => {
+type Params<E> = {
+  schemaName: string;
+  sql: Sql;
+  eventStore: EventStore<E>;
+  project: Project;
+  limit?: number;
+};
+
+export const PostgresProjection = async <E>({ schemaName, sql, eventStore, project, limit = 1000 }: Params<E>) => {
   await sql.begin(async (sql) => [
     await sql`CREATE SCHEMA IF NOT EXISTS ${sql(schemaName)}`,
     await sql`SET search_path TO ${sql(schemaName)}`,
