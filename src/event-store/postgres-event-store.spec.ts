@@ -7,7 +7,7 @@ import { PostgresEventStore } from "./postgres-event-store";
 describe("PostgresEventStore", () => {
   let container: StartedPostgreSqlContainer;
   let sql: Sql;
-  let eventStore: PostgresEventStore<TestEvent>;
+  let schemaName: string;
 
   beforeAll(async () => {
     container = await new PostgreSqlContainer("postgres:17-alpine").withWaitStrategy(Wait.forListeningPorts()).start();
@@ -27,14 +27,11 @@ describe("PostgresEventStore", () => {
         },
       },
     });
-    const schemaName = `events${Math.floor(Math.random() * 100000)}`;
-
-    eventStore = new PostgresEventStore<TestEvent>(schemaName, sql);
-    await eventStore.init();
+    schemaName = `events${Math.floor(Math.random() * 100000)}`;
   }, 120_000);
   afterEach(async () => {
     await sql.end();
   });
 
-  eventStoreContractTest(async () => eventStore);
+  eventStoreContractTest(async () => await PostgresEventStore<TestEvent>(schemaName, sql));
 });

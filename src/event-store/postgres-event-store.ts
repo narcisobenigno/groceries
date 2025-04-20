@@ -1,19 +1,15 @@
 import type { Sql } from "postgres";
 import type { Envelope, EventStore, PersistedEnvelope, ReadCondition, WriteCondition } from "./event-store";
 
-export class PostgresEventStore<E> implements EventStore<E> {
-  constructor(
-    private readonly schemaName: string,
-    private readonly sql: Sql,
-    private readonly limit: number = 1000,
-  ) {}
-
-  async init(): Promise<void> {
-    const sql = this.sql;
-    await sql.begin(async (sql) => [
-      await sql`SET search_path TO ${sql(this.schemaName)}`,
-      await sql`CREATE SCHEMA IF NOT EXISTS ${sql.unsafe(this.schemaName)}`,
-      await sql`
+export const PostgresEventStore = async <E>(
+  schemaName: string,
+  sql: Sql,
+  defaultLimit = 1000,
+): Promise<EventStore<E>> => {
+  await sql.begin(async (sql) => [
+    await sql`SET search_path TO ${sql(schemaName)}`,
+    await sql`CREATE SCHEMA IF NOT EXISTS ${sql.unsafe(schemaName)}`,
+    await sql`
         CREATE TABLE IF NOT EXISTS "Events" (
           "Position" BIGSERIAL PRIMARY KEY,
           "Timestamp" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
@@ -22,10 +18,10 @@ export class PostgresEventStore<E> implements EventStore<E> {
           "Event" JSONB NOT NULL
         )
       `,
-      await sql`CREATE INDEX IF NOT EXISTS idx_events_streamid ON "Events" USING GIN("StreamID")`,
-      await sql`CREATE INDEX IF NOT EXISTS idx_events_position ON "Events" ("Position")`,
-      await sql`CREATE INDEX IF NOT EXISTS idx_events_eventname ON "Events" ("Type")`,
-      await sql`
+    await sql`CREATE INDEX IF NOT EXISTS idx_events_streamid ON "Events" USING GIN("StreamID")`,
+    await sql`CREATE INDEX IF NOT EXISTS idx_events_position ON "Events" ("Position")`,
+    await sql`CREATE INDEX IF NOT EXISTS idx_events_eventname ON "Events" ("Type")`,
+    await sql`
         CREATE OR REPLACE FUNCTION UNNEST_1D(ANYARRAY) RETURNS SETOF ANYARRAY AS $$
           SELECT ARRAY_AGG($1[d1][d2])
           FROM GENERATE_SUBSCRIPTS($1,1) d1,  GENERATE_SUBSCRIPTS($1,2) d2
@@ -33,27 +29,26 @@ export class PostgresEventStore<E> implements EventStore<E> {
           ORDER BY d1
         $$ LANGUAGE sql IMMUTABLE PARALLEL SAFE STRICT;
       `,
-    ]);
-  }
+  ]);
 
-  async save(envelopes: Envelope<E>[], writeCondition?: WriteCondition): Promise<PersistedEnvelope[]> {
-    if (envelopes.length === 0) {
-      return [];
-    }
+  return {
+    save: async (envelopes: Envelope<E>[], writeCondition?: WriteCondition): Promise<PersistedEnvelope[]> => {
+      if (envelopes.length === 0) {
+        return [];
+      }
 
-    const streamIDs: string[][] = [];
-    const eventNames: string[] = [];
-    const payloads: string[] = [];
+      const streamIDs: string[][] = [];
+      const eventNames: string[] = [];
+      const payloads: string[] = [];
 
-    for (const envelope of envelopes) {
-      streamIDs.push(Array.isArray(envelope.streamId) ? envelope.streamId : [envelope.streamId]);
-      eventNames.push(envelope.type);
-      payloads.push(JSON.stringify(envelope.event));
-    }
+      for (const envelope of envelopes) {
+        streamIDs.push(Array.isArray(envelope.streamId) ? envelope.streamId : [envelope.streamId]);
+        eventNames.push(envelope.type);
+        payloads.push(JSON.stringify(envelope.event));
+      }
 
-    const sql = this.sql;
-    await sql`SET search_path TO ${sql(this.schemaName)}`;
-    const persistedRows = await sql<PersistedEnvelope[]>`
+      await sql`SET search_path TO ${sql(schemaName)}`;
+      const persistedRows = await sql<PersistedEnvelope[]>`
       INSERT INTO "Events" (
           "StreamID",
           "Type",
@@ -98,23 +93,24 @@ export class PostgresEventStore<E> implements EventStore<E> {
         "Event" as "event";
     `;
 
-    if (writeCondition && persistedRows.length === 0) {
-      throw new Error(`Concurrency conflict: Events were inserted after position ${writeCondition.lastEventPosition}`);
-    }
+      if (writeCondition && persistedRows.length === 0) {
+        throw new Error(
+          `Concurrency conflict: Events were inserted after position ${writeCondition.lastEventPosition}`,
+        );
+      }
 
-    return persistedRows;
-  }
+      return persistedRows;
+    },
 
-  async read({
-    upto,
-    streamIds: streamIDs = [],
-    events = [],
-    limit = 0,
-    offset,
-  }: ReadCondition): Promise<PersistedEnvelope[]> {
-    const sql = this.sql;
-    await sql`SET search_path TO ${sql(this.schemaName)}`;
-    return await sql<PersistedEnvelope[]>`
+    read: async ({
+      upto,
+      streamIds: streamIDs = [],
+      events = [],
+      limit = 0,
+      offset,
+    }: ReadCondition): Promise<PersistedEnvelope[]> => {
+      await sql`SET search_path TO ${sql(schemaName)}`;
+      return await sql<PersistedEnvelope[]>`
       SELECT
           "Position" as "position",
           "Timestamp" as "timestamp",
@@ -130,7 +126,8 @@ export class PostgresEventStore<E> implements EventStore<E> {
           ${events.length > 0 ? sql`AND "Type" IN ${sql(events)}` : sql``}
       ORDER BY
           "Position" ASC
-      ${sql`LIMIT ${limit || this.limit}`}
+      ${sql`LIMIT ${limit || defaultLimit}`}
     `;
-  }
-}
+    },
+  };
+};
