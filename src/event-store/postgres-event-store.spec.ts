@@ -1,7 +1,8 @@
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 import postgres, { type Sql } from "postgres";
 import { Wait } from "testcontainers";
-import { type TestEvent, eventStoreContractTest } from "./event-store.contract";
+import type { Event } from "./event-store";
+import { eventStoreContractTest } from "./event-store.contract";
 import { PostgresEventStore } from "./postgres-event-store";
 
 describe("PostgresEventStore", () => {
@@ -33,5 +34,5 @@ describe("PostgresEventStore", () => {
     await sql.end();
   });
 
-  eventStoreContractTest(async () => await PostgresEventStore<TestEvent>(schemaName, sql));
+  eventStoreContractTest(async <E extends Event>() => await PostgresEventStore<E>(schemaName, sql));
 });

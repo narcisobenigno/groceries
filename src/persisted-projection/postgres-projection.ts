@@ -1,4 +1,4 @@
-import type { EventStore, PersistedEnvelope } from "@/event-store/event-store";
+import type { Event, EventStore, PersistedEnvelope } from "@/event-store/event-store";
 import type postgres from "postgres";
 import type { Sql } from "postgres";
 
@@ -11,7 +11,7 @@ type Position = {
   position: bigint;
 };
 
-type Params<E> = {
+type Params<E extends Event> = {
   schemaName: string;
   sql: Sql;
   eventStore: EventStore<E>;
@@ -19,7 +19,13 @@ type Params<E> = {
   limit?: number;
 };
 
-export const PostgresProjection = async <E>({ schemaName, sql, eventStore, project, limit = 1000 }: Params<E>) => {
+export const PostgresProjection = async <E extends Event>({
+  schemaName,
+  sql,
+  eventStore,
+  project,
+  limit = 1000,
+}: Params<E>) => {
   await sql.begin(async (sql) => [
     await sql`CREATE SCHEMA IF NOT EXISTS ${sql(schemaName)}`,
     await sql`SET search_path TO ${sql(schemaName)}`,

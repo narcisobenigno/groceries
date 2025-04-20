@@ -1,10 +1,10 @@
-import type { Envelope, EventStore, PersistedEnvelope, ReadCondition, WriteCondition } from "./event-store";
+import type { Envelope, Event, EventStore, PersistedEnvelope, ReadCondition, WriteCondition } from "./event-store";
 
 interface Clock {
   now: () => Date;
 }
 
-export class InMemoryEventStore<Event> implements EventStore<Event> {
+export class InMemoryEventStore<E extends Event> implements EventStore<E> {
   #store: PersistedEnvelope[] = [];
   #position = BigInt(0);
 

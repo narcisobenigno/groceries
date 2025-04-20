@@ -6,9 +6,14 @@ export interface PersistedEnvelope {
   event: Record<string, unknown>;
 }
 
-export interface Envelope<E> {
-  streamId: string | string[];
+export type Event = {
   type: string;
+  [key: string]: unknown;
+};
+
+export interface Envelope<E extends Event> {
+  streamId: string | string[];
+  type: E["type"];
   event: E;
 }
 
@@ -28,7 +33,7 @@ export interface ReadCondition {
   limit?: number;
 }
 
-export interface EventStore<E> {
+export interface EventStore<E extends Event> {
   save(envelopes: Envelope<E>[], writeCondition?: WriteCondition): Promise<PersistedEnvelope[]>;
 
   read(conditions: ReadCondition): Promise<PersistedEnvelope[]>;

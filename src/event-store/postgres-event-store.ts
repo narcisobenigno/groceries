@@ -1,7 +1,7 @@
 import type { Sql } from "postgres";
-import type { Envelope, EventStore, PersistedEnvelope, ReadCondition, WriteCondition } from "./event-store";
+import type { Envelope, Event, EventStore, PersistedEnvelope, ReadCondition, WriteCondition } from "./event-store";
 
-export const PostgresEventStore = async <E>(
+export const PostgresEventStore = async <E extends Event>(
   schemaName: string,
   sql: Sql,
   defaultLimit = 1000,

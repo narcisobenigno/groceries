@@ -1,16 +1,11 @@
-import type { Envelope, EventStore, PersistedEnvelope } from "./event-store";
+import type { Envelope, Event, EventStore, PersistedEnvelope } from "./event-store";
 
-export interface TestEvent {
-  type: string;
-  data: any;
-}
-
-export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent>>) => {
+export const eventStoreContractTest = (store: <E extends Event>() => Promise<EventStore<E>>) => {
   describe("Event Store Contract Test", () => {
     let eventStore: EventStore<TestEvent>;
 
     beforeEach(async () => {
-      eventStore = await store();
+      eventStore = await store<TestEvent>();
     }, 120_000);
 
     describe("save", () => {
@@ -429,7 +424,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
           {
             streamId: "concurrent-stream",
             type: "created",
-            event: { type: "concurrent", data: 1 },
+            event: { type: "created", data: 1 },
           },
         ]);
 
@@ -467,3 +462,20 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
     });
   });
 };
+
+type CreatedEvent = {
+  type: "created";
+  data: any;
+};
+
+type UpdatedEvent = {
+  type: "updated";
+  data: any;
+};
+
+type AddedEvent = {
+  type: "added";
+  data: any;
+};
+
+export type TestEvent = CreatedEvent | UpdatedEvent | AddedEvent;
