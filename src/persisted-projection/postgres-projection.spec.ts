@@ -33,17 +33,17 @@ describe("PostgresProjector", () => {
     await eventStore.save([
       {
         streamId: ["stream_1234"],
-        eventName: "created",
+        type: "created",
         event: { type: "created", numberId: "stream_123", value: 1 },
       },
       {
         streamId: ["stream_1234"],
-        eventName: "added",
+        type: "added",
         event: { type: "added", numberId: "stream_123", value: 2 },
       },
       {
         streamId: ["stream_4321"],
-        eventName: "created",
+        type: "created",
         event: { type: "created", numberId: "stream_4321", value: 4 },
       },
     ]);

@@ -36,7 +36,7 @@ export class InMemoryEventStore<Event> implements EventStore<Event> {
 
     const filtered = this.#store
       .filter((event) => !streamIds || streamIds.some((streamId) => event.streamId.includes(streamId)))
-      .filter((event) => !events || events.includes(event.eventName))
+      .filter((event) => !events || events.includes(event.type))
       .filter((event) => !upto || event.position <= upto)
       .filter((event) => !offset || event.position > offset);
 

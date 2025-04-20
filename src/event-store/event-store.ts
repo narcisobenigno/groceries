@@ -2,13 +2,13 @@ export interface PersistedEnvelope {
   position: bigint;
   timestamp: Date;
   streamId: string[];
-  eventName: string;
+  type: string;
   event: Record<string, unknown>;
 }
 
 export interface Envelope<E> {
   streamId: string | string[];
-  eventName: string;
+  type: string;
   event: E;
 }
 

@@ -17,7 +17,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
       it("inserts a single event", async () => {
         const event = {
           streamId: "stream-1",
-          eventName: "TestEvent",
+          type: "TestEvent",
           event: { type: "created", data: { foo: "bar" } },
         };
 
@@ -26,7 +26,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
         expect(result).toMatchObject([
           {
             streamId: ["stream-1"],
-            eventName: "TestEvent",
+            type: "TestEvent",
             event: { type: "created", data: { foo: "bar" } },
           },
         ]);
@@ -36,12 +36,12 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
         const events = [
           {
             streamId: ["stream-1", "stream-2"],
-            eventName: "TestEvent1",
+            type: "TestEvent1",
             event: { type: "created", data: { foo: "bar" } },
           },
           {
             streamId: ["stream-1", "stream-2"],
-            eventName: "TestEvent2",
+            type: "TestEvent2",
             event: { type: "updated", data: { foo: "baz" } },
           },
         ];
@@ -51,12 +51,12 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
         expect(result).toMatchObject([
           {
             streamId: ["stream-1", "stream-2"],
-            eventName: "TestEvent1",
+            type: "TestEvent1",
             event: { type: "created", data: { foo: "bar" } },
           },
           {
             streamId: ["stream-1", "stream-2"],
-            eventName: "TestEvent2",
+            type: "TestEvent2",
             event: { type: "updated", data: { foo: "baz" } },
           },
         ]);
@@ -66,7 +66,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
         await eventStore.save([
           {
             streamId: "stream-1",
-            eventName: "TestEvent",
+            type: "TestEvent",
             event: { type: "created", data: { foo: "bar" } },
           },
         ]);
@@ -76,7 +76,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
             [
               {
                 streamId: "stream-1",
-                eventName: "TestEvent2",
+                type: "TestEvent2",
                 event: { type: "updated", data: { foo: "baz" } },
               },
             ],
@@ -95,7 +95,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
         const [firstEvent] = await eventStore.save([
           {
             streamId: "stream-1",
-            eventName: "TestEvent",
+            type: "TestEvent",
             event: { type: "created", data: { foo: "bar" } },
           },
         ]);
@@ -104,7 +104,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
           [
             {
               streamId: "stream-1",
-              eventName: "TestEvent2",
+              type: "TestEvent2",
               event: { type: "updated", data: { foo: "baz" } },
             },
           ],
@@ -120,7 +120,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
         expect(result).toMatchObject([
           {
             streamId: ["stream-1"],
-            eventName: "TestEvent2",
+            type: "TestEvent2",
             event: { type: "updated", data: { foo: "baz" } },
           },
         ]);
@@ -132,14 +132,14 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
         await eventStore.save([
           {
             streamId: "stream-1",
-            eventName: "TestEvent1",
+            type: "TestEvent1",
             event: { type: "created", data: { id: 1 } },
           },
         ]);
         await eventStore.save([
           {
             streamId: ["stream-1", "stream-2"],
-            eventName: "TestEvent2",
+            type: "TestEvent2",
             event: { type: "updated", data: { id: 1 } },
           },
         ]);
@@ -149,12 +149,12 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
         expect(result).toMatchObject([
           {
             streamId: ["stream-1"],
-            eventName: "TestEvent1",
+            type: "TestEvent1",
             event: { type: "created", data: { id: 1 } },
           },
           {
             streamId: ["stream-1", "stream-2"],
-            eventName: "TestEvent2",
+            type: "TestEvent2",
             event: { type: "updated", data: { id: 1 } },
           },
         ]);
@@ -164,21 +164,21 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
         await eventStore.save([
           {
             streamId: "stream-1",
-            eventName: "TestEvent1",
+            type: "TestEvent1",
             event: { type: "created", data: { id: 1 } },
           },
         ]);
         await eventStore.save([
           {
             streamId: ["stream-1", "stream-2"],
-            eventName: "TestEvent2",
+            type: "TestEvent2",
             event: { type: "updated", data: { id: 2 } },
           },
         ]);
         await eventStore.save([
           {
             streamId: "stream-3",
-            eventName: "TestEvent3",
+            type: "TestEvent3",
             event: { type: "created", data: { id: 1 } },
           },
         ]);
@@ -187,12 +187,12 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
         expect(result).toMatchObject([
           {
             streamId: ["stream-1"],
-            eventName: "TestEvent1",
+            type: "TestEvent1",
             event: { type: "created", data: { id: 1 } },
           },
           {
             streamId: ["stream-1", "stream-2"],
-            eventName: "TestEvent2",
+            type: "TestEvent2",
             event: { type: "updated", data: { id: 2 } },
           },
         ]);
@@ -202,14 +202,14 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
         await eventStore.save([
           {
             streamId: "stream-1",
-            eventName: "TestEvent1",
+            type: "TestEvent1",
             event: { type: "created", data: { id: 1 } },
           },
         ]);
         await eventStore.save([
           {
             streamId: "stream-2",
-            eventName: "TestEvent2",
+            type: "TestEvent2",
             event: { type: "updated", data: { id: 2 } },
           },
         ]);
@@ -219,12 +219,12 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
         expect(result).toMatchObject([
           {
             streamId: ["stream-1"],
-            eventName: "TestEvent1",
+            type: "TestEvent1",
             event: { type: "created", data: { id: 1 } },
           },
           {
             streamId: ["stream-2"],
-            eventName: "TestEvent2",
+            type: "TestEvent2",
             event: { type: "updated", data: { id: 2 } },
           },
         ]);
@@ -234,14 +234,14 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
         await eventStore.save([
           {
             streamId: "stream-1",
-            eventName: "TestEvent1",
+            type: "TestEvent1",
             event: { type: "created", data: { id: 1 } },
           },
         ]);
         await eventStore.save([
           {
             streamId: "stream-2",
-            eventName: "TestEvent2",
+            type: "TestEvent2",
             event: { type: "updated", data: { id: 2 } },
           },
         ]);
@@ -251,7 +251,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
         expect(result).toMatchObject([
           {
             streamId: ["stream-2"],
-            eventName: "TestEvent2",
+            type: "TestEvent2",
             event: { type: "updated", data: { id: 2 } },
           },
         ]);
@@ -261,21 +261,21 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
         await eventStore.save([
           {
             streamId: "stream-1",
-            eventName: "TestEvent1",
+            type: "TestEvent1",
             event: { type: "created", data: { id: 1 } },
           },
         ]);
         await eventStore.save([
           {
             streamId: "stream-2",
-            eventName: "TestEvent2",
+            type: "TestEvent2",
             event: { type: "updated", data: { id: 2 } },
           },
         ]);
         await eventStore.save([
           {
             streamId: "stream-3",
-            eventName: "TestEvent3",
+            type: "TestEvent3",
             event: { type: "created", data: { id: 3 } },
           },
         ]);
@@ -286,12 +286,12 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
         expect(result).toMatchObject([
           {
             streamId: ["stream-1"],
-            eventName: "TestEvent1",
+            type: "TestEvent1",
             event: { type: "created", data: { id: 1 } },
           },
           {
             streamId: ["stream-2"],
-            eventName: "TestEvent2",
+            type: "TestEvent2",
             event: { type: "updated", data: { id: 2 } },
           },
         ]);
@@ -301,21 +301,21 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
         await eventStore.save([
           {
             streamId: "stream-1",
-            eventName: "TestEvent1",
+            type: "TestEvent1",
             event: { type: "created", data: { id: 1 } },
           },
         ]);
         await eventStore.save([
           {
             streamId: "stream-2",
-            eventName: "TestEvent2",
+            type: "TestEvent2",
             event: { type: "updated", data: { id: 2 } },
           },
         ]);
         await eventStore.save([
           {
             streamId: "stream-3",
-            eventName: "TestEvent3",
+            type: "TestEvent3",
             event: { type: "created", data: { id: 3 } },
           },
         ]);
@@ -324,12 +324,12 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
         expect(result).toMatchObject([
           {
             streamId: ["stream-1"],
-            eventName: "TestEvent1",
+            type: "TestEvent1",
             event: { type: "created", data: { id: 1 } },
           },
           {
             streamId: ["stream-2"],
-            eventName: "TestEvent2",
+            type: "TestEvent2",
             event: { type: "updated", data: { id: 2 } },
           },
         ]);
@@ -340,7 +340,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
           await eventStore.save([
             {
               streamId: `stream-${i}`,
-              eventName: `TestEvent${i}`,
+              type: `TestEvent${i}`,
               event: { type: "created", data: { id: i } },
             },
           ]);
@@ -354,21 +354,21 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
         const offsetBeging = await eventStore.save([
           {
             streamId: "stream-1",
-            eventName: "TestEvent1",
+            type: "TestEvent1",
             event: { type: "created", data: { id: 1 } },
           },
         ]);
         await eventStore.save([
           {
             streamId: "stream-2",
-            eventName: "TestEvent2",
+            type: "TestEvent2",
             event: { type: "updated", data: { id: 2 } },
           },
         ]);
         await eventStore.save([
           {
             streamId: "stream-3",
-            eventName: "TestEvent3",
+            type: "TestEvent3",
             event: { type: "created", data: { id: 3 } },
           },
         ]);
@@ -377,12 +377,12 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
         expect(result).toMatchObject([
           {
             streamId: ["stream-2"],
-            eventName: "TestEvent2",
+            type: "TestEvent2",
             event: { type: "updated", data: { id: 2 } },
           },
           {
             streamId: ["stream-3"],
-            eventName: "TestEvent3",
+            type: "TestEvent3",
             event: { type: "created", data: { id: 3 } },
           },
         ]);
@@ -392,22 +392,22 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
         const toOffset = await eventStore.save([
           {
             streamId: ["stream-1", "stream-2"],
-            eventName: "TestEvent1",
+            type: "TestEvent1",
             event: { type: "created", data: { id: 1 } },
           },
           {
             streamId: ["stream-1", "stream-2"],
-            eventName: "TestEvent2",
+            type: "TestEvent2",
             event: { type: "updated", data: { id: 2 } },
           },
           {
             streamId: ["stream-1", "stream-2"],
-            eventName: "TestEvent2",
+            type: "TestEvent2",
             event: { type: "updated", data: { id: 3 } },
           },
           {
             streamId: ["stream-1", "stream-2"],
-            eventName: "TestEvent2",
+            type: "TestEvent2",
             event: { type: "updated", data: { id: 4 } },
           },
         ]);
@@ -422,12 +422,12 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
         expect(result).toMatchObject([
           {
             streamId: ["stream-1", "stream-2"],
-            eventName: "TestEvent2",
+            type: "TestEvent2",
             event: { type: "updated", data: { id: 2 } },
           },
           {
             streamId: ["stream-1", "stream-2"],
-            eventName: "TestEvent2",
+            type: "TestEvent2",
             event: { type: "updated", data: { id: 3 } },
           },
         ]);
@@ -440,7 +440,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
         const saved = await eventStore.save([
           {
             streamId: "concurrent-stream",
-            eventName: "EventHappened",
+            type: "EventHappened",
             event: { type: "concurrent", data: 1 },
           },
         ]);
@@ -451,7 +451,7 @@ export const eventStoreContractTest = (store: () => Promise<EventStore<TestEvent
               [
                 {
                   streamId: "concurrent-stream",
-                  eventName: `Event${i}`,
+                  type: `Event${i}`,
                   event: { type: "concurrent", data: 1 },
                 },
               ],
