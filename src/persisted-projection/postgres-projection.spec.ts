@@ -1,7 +1,7 @@
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 import postgres, { type Sql } from "postgres";
 import { Wait } from "testcontainers";
-import { InMemoryEventStore, type PersistedEnvelope } from "../event-store";
+import { InMemoryEventStore } from "../event-store";
 import { PostgresProjection, type Projector } from "./postgres-projection";
 
 describe("PostgresProjector", () => {
@@ -217,13 +217,13 @@ class TestProject {
 
   project(sql: Sql): Projector<TestEvents> {
     return {
-      created: async (event: PersistedEnvelope<TestEvents>) => {
+      created: async (event) => {
         const payload = event.event;
         return [
           await sql`INSERT INTO "projection" (number_id, value) VALUES (${payload.numberId}, ${payload.value.toString()})`,
         ];
       },
-      added: async (event: PersistedEnvelope<TestEvents>) => {
+      added: async (event) => {
         const payload = event.event;
         return [
           await sql`UPDATE "projection" SET value = value + ${payload.value.toString()} WHERE number_id = ${payload.numberId}`,
