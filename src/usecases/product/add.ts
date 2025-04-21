@@ -10,7 +10,7 @@ type AddProductState = {
   [id: AddProductCommand["id"]]: boolean;
 };
 
-type ProductAdded = {
+export type ProductAdded = {
   type: "product.added";
   id: AddProductCommand["id"];
   name: string;
