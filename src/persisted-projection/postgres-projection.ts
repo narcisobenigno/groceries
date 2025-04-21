@@ -4,7 +4,7 @@ import type { Sql } from "postgres";
 
 type EventType<E extends Event, Type extends E["type"]> = Extract<E, { type: Type }>;
 export type Projector<E extends Event> = {
-  [type in E["type"]]: (event: PersistedEnvelope<EventType<E, type>>) => Promise<postgres.Row[]>;
+  [type in E["type"]]?: (event: PersistedEnvelope<EventType<E, type>>) => Promise<postgres.Row[]>;
 };
 interface Project<E extends Event> {
   init(sql: Sql): Promise<postgres.Row[]>;
@@ -54,7 +54,10 @@ export const PostgresProjection = async <E extends Event>({
 
         const queries: postgres.Row[] = [];
         for (const event of events) {
-          const projector = projections[event.type as keyof Projector<E>];
+          const projector = projections[event.type as E["type"]];
+          if (!projector) {
+            continue;
+          }
           queries.push(...(await projector(event as PersistedEnvelope<EventType<E, E["type"]>>)));
         }
 
