@@ -2,7 +2,7 @@ import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testconta
 import postgres, { type Sql } from "postgres";
 import { Wait } from "testcontainers";
 import { InMemoryEventStore } from "../event-store";
-import { PostgresProjection, type Projector } from "./postgres-projection";
+import { PostgresProjection, type Projectors } from "./postgres-projection";
 
 describe("PostgresProjector", () => {
   let container: StartedPostgreSqlContainer;
@@ -31,7 +31,7 @@ describe("PostgresProjector", () => {
       schemaName,
       sql,
       eventStore,
-      project: new TestProject(),
+      projectors: new TestProject(),
     });
 
     await eventStore.save([
@@ -68,7 +68,7 @@ describe("PostgresProjector", () => {
       schemaName,
       sql,
       eventStore,
-      project: new TestProject(),
+      projectors: new TestProject(),
       limit: 2,
     });
 
@@ -103,7 +103,7 @@ describe("PostgresProjector", () => {
       schemaName,
       sql,
       eventStore,
-      project: new TestProject(),
+      projectors: new TestProject(),
       limit: 2,
     });
 
@@ -142,7 +142,7 @@ describe("PostgresProjector", () => {
       schemaName,
       sql,
       eventStore,
-      project: new TestProject(),
+      projectors: new TestProject(),
       limit: 2,
     });
 
@@ -170,7 +170,7 @@ describe("PostgresProjector", () => {
       schemaName,
       sql,
       eventStore,
-      project: new TestProject(),
+      projectors: new TestProject(),
       limit: 2,
     });
 
@@ -215,15 +215,15 @@ class TestProject {
     return [await sql`CREATE TABLE IF NOT EXISTS "projection" (number_id TEXT PRIMARY KEY, value int)`];
   }
 
-  project(sql: Sql): Projector<TestEvents> {
+  all(): Projectors<TestEvents> {
     return {
-      created: async (event) => {
+      created: async (sql, event) => {
         const payload = event.event;
         return [
           await sql`INSERT INTO "projection" (number_id, value) VALUES (${payload.numberId}, ${payload.value.toString()})`,
         ];
       },
-      added: async (event) => {
+      added: async (sql, event) => {
         const payload = event.event;
         return [
           await sql`UPDATE "projection" SET value = value + ${payload.value.toString()} WHERE number_id = ${payload.numberId}`,
