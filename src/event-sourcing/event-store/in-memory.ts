@@ -6,7 +6,7 @@ interface Clock {
 
 export class InMemory<E extends Event> implements EventStore<E> {
   #store: PersistedEnvelope<E>[] = [];
-  #position = BigInt(0);
+  #position = 0n;
 
   constructor(
     private readonly clock: Clock = { now: () => new Date() },
