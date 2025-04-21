@@ -25,7 +25,7 @@ describe("PostgresProjector", () => {
   });
 
   it("projects events", async () => {
-    const eventStore = new eventstore.InMemoryEventStore<TestEvents>();
+    const eventStore = new eventstore.InMemory<TestEvents>();
 
     const projector = await PostgresProjection({
       schemaName,
@@ -62,7 +62,7 @@ describe("PostgresProjector", () => {
   });
 
   it("projects up to the limit", async () => {
-    const eventStore = new eventstore.InMemoryEventStore<TestEvents>();
+    const eventStore = new eventstore.InMemory<TestEvents>();
 
     const projector = await PostgresProjection({
       schemaName,
@@ -97,7 +97,7 @@ describe("PostgresProjector", () => {
   });
 
   it("projects from where it left off", async () => {
-    const eventStore = new eventstore.InMemoryEventStore<TestEvents>();
+    const eventStore = new eventstore.InMemory<TestEvents>();
 
     const projector = await PostgresProjection({
       schemaName,
@@ -136,7 +136,7 @@ describe("PostgresProjector", () => {
   });
 
   it("returns true when events projected up until limit", async () => {
-    const eventStore = new eventstore.InMemoryEventStore<TestEvents>();
+    const eventStore = new eventstore.InMemory<TestEvents>();
 
     const projector = await PostgresProjection({
       schemaName,
@@ -164,7 +164,7 @@ describe("PostgresProjector", () => {
   });
 
   it("returns false when events projected less than limit", async () => {
-    const eventStore = new eventstore.InMemoryEventStore<TestEvents>();
+    const eventStore = new eventstore.InMemory<TestEvents>();
 
     const projector = await PostgresProjection({
       schemaName,

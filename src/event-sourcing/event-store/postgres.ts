@@ -9,7 +9,7 @@ import type {
   WriteCondition,
 } from "./event-store";
 
-export const PostgresEventStore = async <E extends Event>(
+export const Postgres = async <E extends Event>(
   schemaName: string,
   sql: Sql,
   parser: ParseEvent<E>,

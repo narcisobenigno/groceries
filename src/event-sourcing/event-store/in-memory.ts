@@ -4,7 +4,7 @@ interface Clock {
   now: () => Date;
 }
 
-export class InMemoryEventStore<E extends Event> implements EventStore<E> {
+export class InMemory<E extends Event> implements EventStore<E> {
   #store: PersistedEnvelope<E>[] = [];
   #position = BigInt(0);
 

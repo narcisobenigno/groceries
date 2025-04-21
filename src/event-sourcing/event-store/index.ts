@@ -1,3 +1,3 @@
 export * from "./event-store";
-export * from "./in-memory-event-store";
-export * from "./postgres-event-store";
+export * from "./in-memory";
+export * from "./postgres";

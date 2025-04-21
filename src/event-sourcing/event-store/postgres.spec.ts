@@ -3,7 +3,7 @@ import postgres, { type Sql } from "postgres";
 import { Wait } from "testcontainers";
 import type { Event, ParseEvent } from "./event-store";
 import { eventStoreContractTest } from "./event-store.contract";
-import { PostgresEventStore } from "./postgres-event-store";
+import { Postgres } from "./postgres";
 
 describe("PostgresEventStore", () => {
   let container: StartedPostgreSqlContainer;
@@ -34,7 +34,5 @@ describe("PostgresEventStore", () => {
     await sql.end();
   });
 
-  eventStoreContractTest(
-    async <E extends Event>(parse: ParseEvent<E>) => await PostgresEventStore<E>(schemaName, sql, parse),
-  );
+  eventStoreContractTest(async <E extends Event>(parse: ParseEvent<E>) => await Postgres<E>(schemaName, sql, parse));
 });
