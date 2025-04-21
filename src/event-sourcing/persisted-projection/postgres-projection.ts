@@ -1,4 +1,4 @@
-import type { Event, EventStore, PersistedEnvelope } from "@/event-store/event-store";
+import type { Event, EventStore, PersistedEnvelope } from "@/event-sourcing/event-store";
 import type postgres from "postgres";
 import type { Sql } from "postgres";
 
