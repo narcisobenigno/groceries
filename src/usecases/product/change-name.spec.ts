@@ -89,4 +89,25 @@ describe("change name", () => {
       ),
     ).rejects.toEqual(new Error("Product with id product_123 does not exist"));
   });
+
+  it("does not change name when new name is the same", async () => {
+    const changeName = ChangeName();
+
+    const setupEvents: PersistedEnvelope<ProductEvent>[] = [
+      {
+        type: "product.added",
+        streamId: ["product_123"],
+        position: 1n,
+        timestamp: new Date(),
+        event: { type: "product.added", id: "product_123", name: "Test Product" },
+      },
+    ];
+
+    await expect(
+      changeName.decide(
+        { type: "product.change-name", id: "product_123", newName: "Test Product" },
+        setupEvents.reduce(changeName.evolve, changeName.intialState()),
+      ),
+    ).resolves.toEqual([]);
+  });
 });

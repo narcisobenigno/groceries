@@ -1,13 +1,14 @@
 import type { Decider } from "@/event-sourcing/decider";
+import type { Id } from "./id";
 
 type AddProductCommand = {
   type: "product.add";
-  id: `product_${string}`;
+  id: Id;
   name: string;
 };
 
 type AddProductState = {
-  [id: AddProductCommand["id"]]: boolean;
+  [id in AddProductCommand["id"]]?: boolean;
 };
 
 export type ProductAdded = {

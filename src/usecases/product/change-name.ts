@@ -1,13 +1,14 @@
 import type { Decider } from "@/event-sourcing/decider";
 import type { ProductEvent } from "./event";
+import type { Id } from "./id";
 
 type ChangeNameCommand = {
   type: "product.change-name";
-  id: `product_${string}`;
+  id: Id;
   newName: string;
 };
 type ChangeNameState = {
-  [id: ChangeNameCommand["id"]]: string;
+  [id in ChangeNameCommand["id"]]?: string;
 };
 
 export type NameChanged = {
@@ -20,8 +21,12 @@ export type NameChanged = {
 export const ChangeName = (): Decider<ChangeNameCommand, ChangeNameState, ProductEvent> => {
   return {
     decide: async (command, state) => {
-      if (!state[command.id]) {
+      const oldName = state[command.id];
+      if (!oldName) {
         throw new Error(`Product with id ${command.id} does not exist`);
+      }
+      if (oldName === command.newName) {
+        return [];
       }
 
       const { id, newName } = command;
@@ -33,7 +38,7 @@ export const ChangeName = (): Decider<ChangeNameCommand, ChangeNameState, Produc
             type: "product.name-changed",
             id,
             newName,
-            oldName: state[id],
+            oldName,
           },
         },
       ];
