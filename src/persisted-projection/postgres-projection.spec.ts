@@ -2,7 +2,7 @@ import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testconta
 import postgres, { type Sql } from "postgres";
 import { Wait } from "testcontainers";
 import { InMemoryEventStore, type PersistedEnvelope } from "../event-store";
-import { PostgresProjection } from "./postgres-projection";
+import { PostgresProjection, type Projector } from "./postgres-projection";
 
 describe("PostgresProjector", () => {
   let container: StartedPostgreSqlContainer;
@@ -215,19 +215,20 @@ class TestProject {
     return [await sql`CREATE TABLE IF NOT EXISTS "projection" (number_id TEXT PRIMARY KEY, value int)`];
   }
 
-  async project(sql: Sql, event: PersistedEnvelope): Promise<postgres.Row[]> {
-    const payload = event.event as TestEvents;
-    if (payload.type === "created") {
-      return [
-        await sql`INSERT INTO "projection" (number_id, value) VALUES (${payload.numberId}, ${payload.value.toString()})`,
-      ];
-    }
-    if (payload.type === "added") {
-      return [
-        await sql`UPDATE "projection" SET value = value + ${payload.value.toString()} WHERE number_id = ${payload.numberId}`,
-      ];
-    }
-
-    return [];
+  project(sql: Sql): Projector {
+    return {
+      created: async (event: PersistedEnvelope) => {
+        const payload = event.event as CreatedEvent;
+        return [
+          await sql`INSERT INTO "projection" (number_id, value) VALUES (${payload.numberId}, ${payload.value.toString()})`,
+        ];
+      },
+      added: async (event: PersistedEnvelope) => {
+        const payload = event.event as AddedEvent;
+        return [
+          await sql`UPDATE "projection" SET value = value + ${payload.value.toString()} WHERE number_id = ${payload.numberId}`,
+        ];
+      },
+    };
   }
 }

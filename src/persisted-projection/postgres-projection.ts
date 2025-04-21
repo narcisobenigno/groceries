@@ -2,9 +2,12 @@ import type { Event, EventStore, PersistedEnvelope } from "@/event-store/event-s
 import type postgres from "postgres";
 import type { Sql } from "postgres";
 
+export type Projector = {
+  [type: Event["type"]]: (event: PersistedEnvelope) => Promise<postgres.Row[]>;
+};
 interface Project {
   init(sql: Sql): Promise<postgres.Row[]>;
-  project(sql: Sql, events: PersistedEnvelope): Promise<postgres.Row[]>;
+  project(sql: Sql): Projector;
 }
 
 type Position = {
@@ -40,10 +43,17 @@ export const PostgresProjection = async <E extends Event>({
       await sql.begin(async (sql) => {
         const position = await sql<Position[]>`SELECT position FROM "_position" WHERE name = '${sql(schemaName)}'`;
 
-        const events = await eventStore.read({ limit, offset: position[0].position });
+        const projections = project.project(sql);
+
+        const events = await eventStore.read({
+          limit,
+          offset: position[0].position,
+          events: Object.keys(projections),
+        });
+
         const queries: postgres.Row[] = [];
         for (const event of events) {
-          queries.push(...(await project.project(sql, event)));
+          queries.push(...(await projections[event.type](event)));
         }
 
         totalProjected = events.length;
