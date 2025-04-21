@@ -1,12 +1,12 @@
-import type { Event, EventStore, PersistedEnvelope } from "@/event-sourcing/event-store";
+import type { eventstore } from "@/event-sourcing";
 import type postgres from "postgres";
 import type { Sql } from "postgres";
 
-type EventType<E extends Event, Type extends E["type"]> = Extract<E, { type: Type }>;
-export type Projectors<E extends Event> = {
-  [type in E["type"]]?: (sql: Sql, event: PersistedEnvelope<EventType<E, type>>) => Promise<postgres.Row[]>;
+type EventType<E extends eventstore.Event, Type extends E["type"]> = Extract<E, { type: Type }>;
+export type Projectors<E extends eventstore.Event> = {
+  [type in E["type"]]?: (sql: Sql, event: eventstore.PersistedEnvelope<EventType<E, type>>) => Promise<postgres.Row[]>;
 };
-interface Project<E extends Event> {
+interface Project<E extends eventstore.Event> {
   init(sql: Sql): Promise<postgres.Row[]>;
   all(): Projectors<E>;
 }
@@ -15,15 +15,15 @@ type Position = {
   position: bigint;
 };
 
-type Params<E extends Event> = {
+type Params<E extends eventstore.Event> = {
   schemaName: string;
   sql: Sql;
-  eventStore: EventStore<E>;
+  eventStore: eventstore.EventStore<E>;
   projectors: Project<E>;
   limit?: number;
 };
 
-export const PostgresProjection = async <E extends Event>({
+export const Postgres = async <E extends eventstore.Event>({
   schemaName,
   sql,
   eventStore,
@@ -58,7 +58,7 @@ export const PostgresProjection = async <E extends Event>({
           if (!projector) {
             continue;
           }
-          queries.push(...(await projector(sql, event as PersistedEnvelope<EventType<E, E["type"]>>)));
+          queries.push(...(await projector(sql, event as eventstore.PersistedEnvelope<EventType<E, E["type"]>>)));
         }
 
         totalProjected = events.length;

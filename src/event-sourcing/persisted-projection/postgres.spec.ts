@@ -2,7 +2,7 @@ import { eventstore } from "@/event-sourcing";
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 import postgres, { type Sql } from "postgres";
 import { Wait } from "testcontainers";
-import { PostgresProjection, type Projectors } from "./postgres-projection";
+import { Postgres, type Projectors } from "./postgres";
 
 describe("PostgresProjector", () => {
   let container: StartedPostgreSqlContainer;
@@ -27,7 +27,7 @@ describe("PostgresProjector", () => {
   it("projects events", async () => {
     const eventStore = new eventstore.InMemory<TestEvents>();
 
-    const projector = await PostgresProjection({
+    const projector = await Postgres({
       schemaName,
       sql,
       eventStore,
@@ -64,7 +64,7 @@ describe("PostgresProjector", () => {
   it("projects up to the limit", async () => {
     const eventStore = new eventstore.InMemory<TestEvents>();
 
-    const projector = await PostgresProjection({
+    const projector = await Postgres({
       schemaName,
       sql,
       eventStore,
@@ -99,7 +99,7 @@ describe("PostgresProjector", () => {
   it("projects from where it left off", async () => {
     const eventStore = new eventstore.InMemory<TestEvents>();
 
-    const projector = await PostgresProjection({
+    const projector = await Postgres({
       schemaName,
       sql,
       eventStore,
@@ -138,7 +138,7 @@ describe("PostgresProjector", () => {
   it("returns true when events projected up until limit", async () => {
     const eventStore = new eventstore.InMemory<TestEvents>();
 
-    const projector = await PostgresProjection({
+    const projector = await Postgres({
       schemaName,
       sql,
       eventStore,
@@ -166,7 +166,7 @@ describe("PostgresProjector", () => {
   it("returns false when events projected less than limit", async () => {
     const eventStore = new eventstore.InMemory<TestEvents>();
 
-    const projector = await PostgresProjection({
+    const projector = await Postgres({
       schemaName,
       sql,
       eventStore,

@@ -1,1 +1,1 @@
-export * from "./postgres-projection";
+export * from "./postgres";
