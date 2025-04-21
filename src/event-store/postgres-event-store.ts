@@ -1,9 +1,18 @@
 import type { Sql } from "postgres";
-import type { Envelope, Event, EventStore, PersistedEnvelope, ReadCondition, WriteCondition } from "./event-store";
+import type {
+  Envelope,
+  Event,
+  EventStore,
+  ParseEvent,
+  PersistedEnvelope,
+  ReadCondition,
+  WriteCondition,
+} from "./event-store";
 
 export const PostgresEventStore = async <E extends Event>(
   schemaName: string,
   sql: Sql,
+  parser: ParseEvent<E>,
   defaultLimit = 1000,
 ): Promise<EventStore<E>> => {
   await sql.begin(async (sql) => [
@@ -32,7 +41,7 @@ export const PostgresEventStore = async <E extends Event>(
   ]);
 
   return {
-    save: async (envelopes: Envelope<E>[], writeCondition?: WriteCondition): Promise<PersistedEnvelope[]> => {
+    save: async (envelopes: Envelope<E>[], writeCondition?: WriteCondition): Promise<PersistedEnvelope<E>[]> => {
       if (envelopes.length === 0) {
         return [];
       }
@@ -47,7 +56,7 @@ export const PostgresEventStore = async <E extends Event>(
         payloads.push(JSON.stringify(envelope.event));
       }
 
-      const persistedRows = await sql<PersistedEnvelope[]>`
+      const persistedRows = await sql<PersistedEnvelope<E>[]>`
       INSERT INTO "Events" (
           "StreamID",
           "Type",
@@ -107,25 +116,26 @@ export const PostgresEventStore = async <E extends Event>(
       events = [],
       limit = 0,
       offset,
-    }: ReadCondition): Promise<PersistedEnvelope[]> => {
-      return await sql<PersistedEnvelope[]>`
-      SELECT
-          "Position" as "position",
-          "Timestamp" as "timestamp",
-          "StreamID" as "streamId",
-          "Type" as "type",
-          "Event" as "event"
-      FROM "Events"
-      WHERE
-          TRUE
-          ${upto ? sql`AND "Position" <= ${upto.toString()}` : sql``}
-          ${offset ? sql`AND "Position" > ${offset.toString()}` : sql``}
-          ${streamIDs.length > 0 ? sql`AND "StreamID" && ${sql.array(streamIDs)}` : sql``}
-          ${events.length > 0 ? sql`AND "Type" IN ${sql(events)}` : sql``}
-      ORDER BY
-          "Position" ASC
-      ${sql`LIMIT ${limit || defaultLimit}`}
-    `;
+    }: ReadCondition): Promise<PersistedEnvelope<E>[]> => {
+      const eventsFound = await sql<PersistedEnvelope<E>[]>`
+        SELECT
+            "Position" as "position",
+            "Timestamp" as "timestamp",
+            "StreamID" as "streamId",
+            "Type" as "type",
+            "Event" as "event"
+        FROM "Events"
+        WHERE
+            TRUE
+            ${upto ? sql`AND "Position" <= ${upto.toString()}` : sql``}
+            ${offset ? sql`AND "Position" > ${offset.toString()}` : sql``}
+            ${streamIDs.length > 0 ? sql`AND "StreamID" && ${sql.array(streamIDs)}` : sql``}
+            ${events.length > 0 ? sql`AND "Type" IN ${sql(events)}` : sql``}
+        ORDER BY
+            "Position" ASC
+        ${sql`LIMIT ${limit || defaultLimit}`}
+      `;
+      return eventsFound.map((event) => ({ ...event, event: parser(event.event) }));
     },
   };
 };

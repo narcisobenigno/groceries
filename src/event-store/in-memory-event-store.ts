@@ -5,7 +5,7 @@ interface Clock {
 }
 
 export class InMemoryEventStore<E extends Event> implements EventStore<E> {
-  #store: PersistedEnvelope[] = [];
+  #store: PersistedEnvelope<E>[] = [];
   #position = BigInt(0);
 
   constructor(
@@ -13,17 +13,17 @@ export class InMemoryEventStore<E extends Event> implements EventStore<E> {
     private readonly limit = 1000,
   ) {}
 
-  async save(events: Envelope<Event>[], writeCondition?: WriteCondition): Promise<PersistedEnvelope[]> {
+  async save(events: Envelope<E>[], writeCondition?: WriteCondition): Promise<PersistedEnvelope<E>[]> {
     if (writeCondition && writeCondition.lastEventPosition !== this.#position) {
       throw new Error(`Concurrency conflict: Events were inserted after position ${writeCondition.lastEventPosition}`);
     }
 
-    const persistedRows = events.map<PersistedEnvelope>((event) => ({
+    const persistedRows = events.map<PersistedEnvelope<E>>((event) => ({
       ...event,
       streamId: Array.isArray(event.streamId) ? event.streamId : [event.streamId],
       position: ++this.#position,
       timestamp: this.clock.now(),
-      event: event.event as Record<string, unknown>,
+      event: event.event as E,
     }));
 
     this.#store.push(...persistedRows);
@@ -31,7 +31,7 @@ export class InMemoryEventStore<E extends Event> implements EventStore<E> {
     return persistedRows;
   }
 
-  async read(conditions: ReadCondition): Promise<PersistedEnvelope[]> {
+  async read(conditions: ReadCondition): Promise<PersistedEnvelope<E>[]> {
     const { upto, streamIds, events, limit, offset } = conditions;
 
     const filtered = this.#store

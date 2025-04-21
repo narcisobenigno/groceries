@@ -2,12 +2,12 @@ import type { Event, EventStore, PersistedEnvelope } from "@/event-store/event-s
 import type postgres from "postgres";
 import type { Sql } from "postgres";
 
-export type Projector = {
-  [type: Event["type"]]: (event: PersistedEnvelope) => Promise<postgres.Row[]>;
+export type Projector<E extends Event> = {
+  [type in E["type"]]: (event: PersistedEnvelope<E>) => Promise<postgres.Row[]>;
 };
-interface Project {
+interface Project<E extends Event> {
   init(sql: Sql): Promise<postgres.Row[]>;
-  project(sql: Sql): Projector;
+  project(sql: Sql): Projector<E>;
 }
 
 type Position = {
@@ -18,7 +18,7 @@ type Params<E extends Event> = {
   schemaName: string;
   sql: Sql;
   eventStore: EventStore<E>;
-  project: Project;
+  project: Project<E>;
   limit?: number;
 };
 
@@ -53,7 +53,7 @@ export const PostgresProjection = async <E extends Event>({
 
         const queries: postgres.Row[] = [];
         for (const event of events) {
-          queries.push(...(await projections[event.type](event)));
+          queries.push(...(await projections[event.type as E["type"]](event)));
         }
 
         totalProjected = events.length;

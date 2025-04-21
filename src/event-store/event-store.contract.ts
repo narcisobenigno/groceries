@@ -1,11 +1,12 @@
-import type { Envelope, Event, EventStore, PersistedEnvelope } from "./event-store";
+import { z } from "zod";
+import type { Envelope, Event, EventStore, ParseEvent, PersistedEnvelope } from "./event-store";
 
-export const eventStoreContractTest = (store: <E extends Event>() => Promise<EventStore<E>>) => {
+export const eventStoreContractTest = (store: <E extends Event>(parser: ParseEvent<E>) => Promise<EventStore<E>>) => {
   describe("Event Store Contract Test", () => {
     let eventStore: EventStore<TestEvent>;
 
     beforeEach(async () => {
-      eventStore = await store<TestEvent>();
+      eventStore = await store<TestEvent>(TestEventSchema.parse);
     }, 120_000);
 
     describe("save", () => {
@@ -14,7 +15,7 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
           {
             streamId: "stream-1",
             type: "created",
-            event: { type: "created", data: { foo: "bar" } },
+            event: { type: "created", data: 1 },
           },
         ]);
 
@@ -22,7 +23,7 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
           {
             streamId: ["stream-1"],
             type: "created",
-            event: { type: "created", data: { foo: "bar" } },
+            event: { type: "created", data: 1 },
             position: 1n,
           },
         ]);
@@ -33,12 +34,12 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
           {
             streamId: ["stream-1", "stream-2"],
             type: "created",
-            event: { type: "created", data: { foo: "bar" } },
+            event: { type: "created", data: 1 },
           },
           {
             streamId: ["stream-1", "stream-2"],
             type: "updated",
-            event: { type: "updated", data: { foo: "baz" } },
+            event: { type: "updated", data: 2 },
           },
         ]);
 
@@ -46,13 +47,13 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
           {
             streamId: ["stream-1", "stream-2"],
             type: "created",
-            event: { type: "created", data: { foo: "bar" } },
+            event: { type: "created", data: 1 },
             position: 1n,
           },
           {
             streamId: ["stream-1", "stream-2"],
             type: "updated",
-            event: { type: "updated", data: { foo: "baz" } },
+            event: { type: "updated", data: 2 },
             position: 2n,
           },
         ]);
@@ -63,7 +64,7 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
           {
             streamId: "stream-1",
             type: "created",
-            event: { type: "created", data: { foo: "bar" } },
+            event: { type: "created", data: 1 },
           },
         ]);
 
@@ -73,7 +74,7 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
               {
                 streamId: "stream-1",
                 type: "updated",
-                event: { type: "updated", data: { foo: "baz" } },
+                event: { type: "updated", data: 2 },
               },
             ],
             {
@@ -92,7 +93,7 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
           {
             streamId: "stream-1",
             type: "created",
-            event: { type: "created", data: { foo: "bar" } },
+            event: { type: "created", data: 1 },
           },
         ]);
 
@@ -101,7 +102,7 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
             {
               streamId: "stream-1",
               type: "updated",
-              event: { type: "updated", data: { foo: "baz" } },
+              event: { type: "updated", data: 2 },
             },
           ],
           {
@@ -117,7 +118,7 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
           {
             streamId: ["stream-1"],
             type: "updated",
-            event: { type: "updated", data: { foo: "baz" } },
+            event: { type: "updated", data: 2 },
             position: 2n,
           },
         ]);
@@ -130,14 +131,14 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
           {
             streamId: "stream-1",
             type: "created",
-            event: { type: "created", data: { id: 1 } },
+            event: { type: "created", data: 1 },
           },
         ]);
         await eventStore.save([
           {
             streamId: ["stream-1", "stream-2"],
             type: "updated",
-            event: { type: "updated", data: { id: 1 } },
+            event: { type: "updated", data: 1 },
           },
         ]);
 
@@ -145,13 +146,13 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
           {
             streamId: ["stream-1"],
             type: "created",
-            event: { type: "created", data: { id: 1 } },
+            event: { type: "created", data: 1 },
             position: 1n,
           },
           {
             streamId: ["stream-1", "stream-2"],
             type: "updated",
-            event: { type: "updated", data: { id: 1 } },
+            event: { type: "updated", data: 1 },
             position: 2n,
           },
         ]);
@@ -162,21 +163,21 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
           {
             streamId: "stream-1",
             type: "created",
-            event: { type: "created", data: { id: 1 } },
+            event: { type: "created", data: 1 },
           },
         ]);
         await eventStore.save([
           {
             streamId: ["stream-1", "stream-2"],
             type: "updated",
-            event: { type: "updated", data: { id: 2 } },
+            event: { type: "updated", data: 2 },
           },
         ]);
         await eventStore.save([
           {
             streamId: "stream-3",
             type: "added",
-            event: { type: "added", data: { id: 1 } },
+            event: { type: "added", data: 1 },
           },
         ]);
 
@@ -184,13 +185,13 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
           {
             streamId: ["stream-1"],
             type: "created",
-            event: { type: "created", data: { id: 1 } },
+            event: { type: "created", data: 1 },
             position: 1n,
           },
           {
             streamId: ["stream-1", "stream-2"],
             type: "updated",
-            event: { type: "updated", data: { id: 2 } },
+            event: { type: "updated", data: 2 },
             position: 2n,
           },
         ]);
@@ -201,12 +202,12 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
           {
             streamId: "stream-1",
             type: "created",
-            event: { type: "created", data: { id: 1 } },
+            event: { type: "created", data: 1 },
           },
           {
             streamId: "stream-2",
             type: "updated",
-            event: { type: "updated", data: { id: 2 } },
+            event: { type: "updated", data: 2 },
           },
         ]);
 
@@ -214,13 +215,13 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
           {
             streamId: ["stream-1"],
             type: "created",
-            event: { type: "created", data: { id: 1 } },
+            event: { type: "created", data: 1 },
             position: 1n,
           },
           {
             streamId: ["stream-2"],
             type: "updated",
-            event: { type: "updated", data: { id: 2 } },
+            event: { type: "updated", data: 2 },
             position: 2n,
           },
         ]);
@@ -231,14 +232,14 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
           {
             streamId: "stream-1",
             type: "created",
-            event: { type: "created", data: { id: 1 } },
+            event: { type: "created", data: 1 },
           },
         ]);
         await eventStore.save([
           {
             streamId: "stream-2",
             type: "updated",
-            event: { type: "updated", data: { id: 2 } },
+            event: { type: "updated", data: 2 },
           },
         ]);
 
@@ -246,7 +247,7 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
           {
             streamId: ["stream-2"],
             type: "updated",
-            event: { type: "updated", data: { id: 2 } },
+            event: { type: "updated", data: 2 },
             position: 2n,
           },
         ]);
@@ -257,17 +258,17 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
           {
             streamId: "stream-1",
             type: "created",
-            event: { type: "created", data: { id: 1 } },
+            event: { type: "created", data: 1 },
           },
           {
             streamId: "stream-2",
             type: "updated",
-            event: { type: "updated", data: { id: 2 } },
+            event: { type: "updated", data: 2 },
           },
           {
             streamId: "stream-3",
             type: "added",
-            event: { type: "added", data: { id: 3 } },
+            event: { type: "added", data: 3 },
           },
         ]);
 
@@ -275,13 +276,13 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
           {
             streamId: ["stream-1"],
             type: "created",
-            event: { type: "created", data: { id: 1 } },
+            event: { type: "created", data: 1 },
             position: 1n,
           },
           {
             streamId: ["stream-2"],
             type: "updated",
-            event: { type: "updated", data: { id: 2 } },
+            event: { type: "updated", data: 2 },
             position: 2n,
           },
         ]);
@@ -292,21 +293,21 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
           {
             streamId: "stream-1",
             type: "created",
-            event: { type: "created", data: { id: 1 } },
+            event: { type: "created", data: 1 },
           },
         ]);
         await eventStore.save([
           {
             streamId: "stream-2",
             type: "updated",
-            event: { type: "updated", data: { id: 2 } },
+            event: { type: "updated", data: 2 },
           },
         ]);
         await eventStore.save([
           {
             streamId: "stream-3",
             type: "added",
-            event: { type: "added", data: { id: 3 } },
+            event: { type: "added", data: 3 },
           },
         ]);
 
@@ -314,13 +315,13 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
           {
             streamId: ["stream-1"],
             type: "created",
-            event: { type: "created", data: { id: 1 } },
+            event: { type: "created", data: 1 },
             position: 1n,
           },
           {
             streamId: ["stream-2"],
             type: "updated",
-            event: { type: "updated", data: { id: 2 } },
+            event: { type: "updated", data: 2 },
             position: 2n,
           },
         ]);
@@ -332,7 +333,7 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
           events.push({
             streamId: `stream-${i}`,
             type: "created",
-            event: { type: "created", data: { id: i } },
+            event: { type: "created", data: i },
           });
         }
         await eventStore.save(events);
@@ -345,17 +346,17 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
           {
             streamId: "stream-1",
             type: "created",
-            event: { type: "created", data: { id: 1 } },
+            event: { type: "created", data: 1 },
           },
           {
             streamId: "stream-2",
             type: "updated",
-            event: { type: "updated", data: { id: 2 } },
+            event: { type: "updated", data: 2 },
           },
           {
             streamId: "stream-3",
             type: "added",
-            event: { type: "added", data: { id: 3 } },
+            event: { type: "added", data: 3 },
           },
         ]);
 
@@ -363,13 +364,13 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
           {
             streamId: ["stream-2"],
             type: "updated",
-            event: { type: "updated", data: { id: 2 } },
+            event: { type: "updated", data: 2 },
             position: 2n,
           },
           {
             streamId: ["stream-3"],
             type: "added",
-            event: { type: "added", data: { id: 3 } },
+            event: { type: "added", data: 3 },
             position: 3n,
           },
         ]);
@@ -380,22 +381,22 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
           {
             streamId: ["stream-1", "stream-2"],
             type: "created",
-            event: { type: "created", data: { id: 1 } },
+            event: { type: "created", data: 1 },
           },
           {
             streamId: ["stream-1", "stream-2"],
             type: "updated",
-            event: { type: "updated", data: { id: 2 } },
+            event: { type: "updated", data: 2 },
           },
           {
             streamId: ["stream-1", "stream-2"],
             type: "updated",
-            event: { type: "updated", data: { id: 3 } },
+            event: { type: "updated", data: 3 },
           },
           {
             streamId: ["stream-1", "stream-2"],
             type: "updated",
-            event: { type: "updated", data: { id: 4 } },
+            event: { type: "updated", data: 4 },
           },
         ]);
 
@@ -405,13 +406,13 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
           {
             streamId: ["stream-1", "stream-2"],
             type: "updated",
-            event: { type: "updated", data: { id: 2 } },
+            event: { type: "updated", data: 2 },
             position: 2n,
           },
           {
             streamId: ["stream-1", "stream-2"],
             type: "updated",
-            event: { type: "updated", data: { id: 3 } },
+            event: { type: "updated", data: 3 },
             position: 3n,
           },
         ]);
@@ -428,8 +429,8 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
           },
         ]);
 
-        let concurrentOperations: Promise<PersistedEnvelope[]>[] = [];
-        for (const i in Array(5).fill(0)) {
+        let concurrentOperations: Promise<PersistedEnvelope<TestEvent>[]>[] = [];
+        for (let i = 0; i < 5; i++) {
           concurrentOperations = [
             ...concurrentOperations,
             eventStore.save(
@@ -463,19 +464,27 @@ export const eventStoreContractTest = (store: <E extends Event>() => Promise<Eve
   });
 };
 
-type CreatedEvent = {
-  type: "created";
-  data: any;
-};
+const CreatedEventSchema = z.object({
+  type: z.literal("created"),
+  data: z.number(),
+});
 
-type UpdatedEvent = {
-  type: "updated";
-  data: any;
-};
+const UpdatedEventSchema = z.object({
+  type: z.literal("updated"),
+  data: z.number(),
+});
 
-type AddedEvent = {
-  type: "added";
-  data: any;
-};
+const AddedEventSchema = z.object({
+  type: z.literal("added"),
+  data: z.number(),
+});
+
+type CreatedEvent = z.infer<typeof CreatedEventSchema>;
+
+type UpdatedEvent = z.infer<typeof UpdatedEventSchema>;
+
+type AddedEvent = z.infer<typeof AddedEventSchema>;
+
+export const TestEventSchema = z.discriminatedUnion("type", [CreatedEventSchema, UpdatedEventSchema, AddedEventSchema]);
 
 export type TestEvent = CreatedEvent | UpdatedEvent | AddedEvent;

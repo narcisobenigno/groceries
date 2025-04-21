@@ -1,9 +1,11 @@
-export interface PersistedEnvelope {
+export type ParseEvent<E extends Event> = (event: Record<string, unknown>) => E;
+
+export interface PersistedEnvelope<E extends Event> {
   position: bigint;
   timestamp: Date;
   streamId: string[];
   type: string;
-  event: Record<string, unknown>;
+  event: E;
 }
 
 export type Event = {
@@ -34,7 +36,7 @@ export interface ReadCondition {
 }
 
 export interface EventStore<E extends Event> {
-  save(envelopes: Envelope<E>[], writeCondition?: WriteCondition): Promise<PersistedEnvelope[]>;
+  save(envelopes: Envelope<E>[], writeCondition?: WriteCondition): Promise<PersistedEnvelope<E>[]>;
 
-  read(conditions: ReadCondition): Promise<PersistedEnvelope[]>;
+  read(conditions: ReadCondition): Promise<PersistedEnvelope<E>[]>;
 }

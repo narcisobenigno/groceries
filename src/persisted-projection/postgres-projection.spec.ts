@@ -215,16 +215,16 @@ class TestProject {
     return [await sql`CREATE TABLE IF NOT EXISTS "projection" (number_id TEXT PRIMARY KEY, value int)`];
   }
 
-  project(sql: Sql): Projector {
+  project(sql: Sql): Projector<TestEvents> {
     return {
-      created: async (event: PersistedEnvelope) => {
-        const payload = event.event as CreatedEvent;
+      created: async (event: PersistedEnvelope<TestEvents>) => {
+        const payload = event.event;
         return [
           await sql`INSERT INTO "projection" (number_id, value) VALUES (${payload.numberId}, ${payload.value.toString()})`,
         ];
       },
-      added: async (event: PersistedEnvelope) => {
-        const payload = event.event as AddedEvent;
+      added: async (event: PersistedEnvelope<TestEvents>) => {
+        const payload = event.event;
         return [
           await sql`UPDATE "projection" SET value = value + ${payload.value.toString()} WHERE number_id = ${payload.numberId}`,
         ];
