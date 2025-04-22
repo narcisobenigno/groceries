@@ -7,8 +7,12 @@ export const Persisted =
     store: eventstore.EventStore<E>,
   ) =>
   async (streamIds: string[], command: C): Promise<eventstore.PersistedEnvelope<E>[]> => {
-    return store
-      .read({ streamIds })
-      .then((events) => decider.decide(command, events.reduce(decider.evolve, decider.intialState())))
-      .then((events) => store.save(events, { lastEventPosition: 0n, query: { streamId: streamIds } }));
+    const existingEvents = await store.read({ streamIds });
+
+    return decider.decide(command, existingEvents.reduce(decider.evolve, decider.intialState())).then((events) =>
+      store.save(events, {
+        lastEventPosition: existingEvents[existingEvents.length - 1]?.position || 0n,
+        query: { streamId: streamIds },
+      }),
+    );
   };
