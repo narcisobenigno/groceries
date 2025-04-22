@@ -123,6 +123,12 @@ export const eventStoreContractTest = (store: <E extends Event>(parser: ParseEve
           },
         ]);
       });
+
+      it("ignores when empty events are passed", async () => {
+        await expect(eventStore.save([])).resolves.toMatchObject([]);
+
+        await expect(eventStore.read({})).resolves.toMatchObject([]);
+      });
     });
 
     describe("read", () => {

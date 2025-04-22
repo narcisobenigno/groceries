@@ -14,6 +14,10 @@ export class InMemory<E extends Event> implements EventStore<E> {
   ) {}
 
   async save(events: Envelope<E>[], writeCondition?: WriteCondition): Promise<PersistedEnvelope<E>[]> {
+    if (events.length === 0) {
+      return [];
+    }
+
     if (writeCondition && writeCondition.lastEventPosition !== this.#position) {
       throw new Error(`Concurrency conflict: Events were inserted after position ${writeCondition.lastEventPosition}`);
     }

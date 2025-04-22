@@ -10,5 +10,5 @@ export const Persisted =
     return store
       .read({ streamIds })
       .then((events) => decider.decide(command, events.reduce(decider.evolve, decider.intialState())))
-      .then((events) => store.save(events));
+      .then((events) => store.save(events, { lastEventPosition: 0n, query: { streamId: streamIds } }));
   };

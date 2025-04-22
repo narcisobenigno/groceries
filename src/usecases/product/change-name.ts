@@ -25,11 +25,11 @@ export const ChangeName = (): Decider<ChangeNameCommand, ChangeNameState, Produc
       if (!oldName) {
         throw new Error(`Product with id ${command.id} does not exist`);
       }
-      if (oldName === command.newName) {
+      const { id, newName } = command;
+      if (oldName === newName) {
         return [];
       }
 
-      const { id, newName } = command;
       return [
         {
           streamId: [id],
