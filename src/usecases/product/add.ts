@@ -1,4 +1,4 @@
-import type { Decider } from "@/event-sourcing/decider";
+import type { Decider, State } from "@/event-sourcing/decider";
 import type { Id } from "./id";
 
 type AddProductCommand = {
@@ -7,7 +7,7 @@ type AddProductCommand = {
   name: string;
 };
 
-type AddProductState = {
+type AddProductState = State<ProductAdded> & {
   [id in AddProductCommand["id"]]?: boolean;
 };
 
@@ -37,8 +37,8 @@ export const AddProduct = (): Decider<AddProductCommand, AddProductState, Produc
       },
     ];
   },
-  evolve: (_state, event) => {
-    return { [event.event.id]: true };
+  evolve: (state, event) => {
+    return { ...state, [event.event.id]: true };
   },
-  intialState: () => ({}),
+  intialState: () => ({ eventTypes: new Set(["product.added"]) }),
 });

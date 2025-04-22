@@ -2,7 +2,7 @@ import type { eventstore } from "@/event-sourcing";
 import type { Command, Decider, State } from "./decider";
 
 export const Persisted =
-  <E extends eventstore.Event, C extends Command, S extends State>(
+  <E extends eventstore.Event, C extends Command, S extends State<E>>(
     decider: Decider<C, S, E>,
     store: eventstore.EventStore<E>,
   ) =>

@@ -1,12 +1,12 @@
 import { eventstore } from "@/event-sourcing";
-import type { Decider } from "./decider";
+import type { Decider, State } from "./decider";
 import { Persisted } from "./persisted";
 
 describe("Persisted Decider", () => {
   it("persistes decision to event store", async () => {
-    const eventStore = new eventstore.InMemory<TestEvent>();
+    const eventStore = new eventstore.InMemory<CreatedEvent>();
     const decider = CreateDecider();
-    const run = Persisted<TestEvent, CreateCommand, CreateState>(decider, eventStore);
+    const run = Persisted<CreatedEvent, CreateCommand, CreateState>(decider, eventStore);
 
     const command: CreateCommand = {
       type: "create",
@@ -40,9 +40,9 @@ describe("Persisted Decider", () => {
   });
 
   it("reduces existing events", async () => {
-    const eventStore = new eventstore.InMemory<TestEvent>();
+    const eventStore = new eventstore.InMemory<CreatedEvent>();
     const decider = CreateDecider();
-    const run = Persisted<TestEvent, CreateCommand, CreateState>(decider, eventStore);
+    const run = Persisted<CreatedEvent, CreateCommand, CreateState>(decider, eventStore);
 
     eventStore.save([
       {
@@ -65,9 +65,9 @@ describe("Persisted Decider", () => {
   });
 
   it("only one of the concurrent command gets saved for new streams", async () => {
-    const eventStore = new eventstore.InMemory<TestEvent>();
+    const eventStore = new eventstore.InMemory<CreatedEvent>();
     const decider = CreateDecider();
-    const run = Persisted<TestEvent, CreateCommand, CreateState>(decider, eventStore);
+    const run = Persisted<CreatedEvent, CreateCommand, CreateState>(decider, eventStore);
 
     const command: CreateCommand = {
       type: "create",
@@ -132,12 +132,16 @@ type UpdatedEvent = {
 
 type TestEvent = CreatedEvent | UpdatedEvent;
 
-type CreateState = {
-  [id in TestEvent["id"]]?: boolean;
+type CreateState = State<CreatedEvent> & {
+  exists: {
+    [id in CreatedEvent["id"]]?: boolean;
+  };
 };
 
-type UpdateState = {
-  [id in TestEvent["id"]]?: number;
+type UpdateState = State<TestEvent> & {
+  oldValue: {
+    [id in TestEvent["id"]]?: number;
+  };
 };
 
 type CreateCommand = {
@@ -152,10 +156,10 @@ type UpdateCommand = {
   newValue: number;
 };
 
-const CreateDecider = (): Decider<CreateCommand, CreateState, TestEvent> => {
+const CreateDecider = (): Decider<CreateCommand, CreateState, CreatedEvent> => {
   return {
     decide: async (command, state) => {
-      if (state[command.id]) {
+      if (state.exists[command.id]) {
         return [];
       }
       return [
@@ -171,17 +175,17 @@ const CreateDecider = (): Decider<CreateCommand, CreateState, TestEvent> => {
       ];
     },
     evolve: (state, event) => {
-      return { ...state, [event.event.id]: true };
+      return { ...state, exists: { [event.event.id]: true } };
     },
 
-    intialState: () => ({}),
+    intialState: () => ({ eventTypes: new Set(["created"]), exists: {} }),
   };
 };
 
 const UpdateDecider = (): Decider<UpdateCommand, UpdateState, TestEvent> => {
   return {
     decide: async (command, state) => {
-      const oldValue = state[command.id];
+      const oldValue = state.oldValue[command.id];
       if (!oldValue) {
         throw new Error(`Product with id ${command.id} does not exist`);
       }
@@ -203,14 +207,17 @@ const UpdateDecider = (): Decider<UpdateCommand, UpdateState, TestEvent> => {
     },
     evolve: (state, event) => {
       if (event.event.type === "created") {
-        return { ...state, [event.event.id]: event.event.value };
+        return {
+          eventTypes: state.eventTypes.add("created"),
+          oldValue: { ...state.oldValue, [event.event.id]: event.event.value },
+        };
       }
       if (event.event.type === "updated") {
-        return { ...state, [event.event.id]: event.event.newValue };
+        return { ...state, oldValue: { ...state.oldValue, [event.event.id]: event.event.newValue } };
       }
       return state;
     },
 
-    intialState: () => ({}),
+    intialState: () => ({ eventTypes: new Set(["updated"]), oldValue: {} }),
   };
 };

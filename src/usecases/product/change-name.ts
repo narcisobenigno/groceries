@@ -1,4 +1,4 @@
-import type { Decider } from "@/event-sourcing/decider";
+import type { Decider, State } from "@/event-sourcing/decider";
 import type { ProductEvent } from "./event";
 import type { Id } from "./id";
 
@@ -7,8 +7,10 @@ type ChangeNameCommand = {
   id: Id;
   newName: string;
 };
-type ChangeNameState = {
-  [id in ChangeNameCommand["id"]]?: string;
+type ChangeNameState = State<ProductEvent> & {
+  oldName: {
+    [id in ChangeNameCommand["id"]]?: string;
+  };
 };
 
 export type NameChanged = {
@@ -21,7 +23,7 @@ export type NameChanged = {
 export const ChangeName = (): Decider<ChangeNameCommand, ChangeNameState, ProductEvent> => {
   return {
     decide: async (command, state) => {
-      const oldName = state[command.id];
+      const oldName = state.oldName[command.id];
       if (!oldName) {
         throw new Error(`Product with id ${command.id} does not exist`);
       }
@@ -46,12 +48,14 @@ export const ChangeName = (): Decider<ChangeNameCommand, ChangeNameState, Produc
     evolve: (state, event) => {
       switch (event.event.type) {
         case "product.added":
-          return { [event.event.id]: event.event.name };
+          return {
+            eventTypes: state.eventTypes.add("product.added"),
+            oldName: { ...state.oldName, [event.event.id]: event.event.name },
+          };
         case "product.name-changed":
-          return { [event.event.id]: event.event.newName };
+          return { ...state, oldName: { ...state.oldName, [event.event.id]: event.event.newName } };
       }
-      return state;
     },
-    intialState: () => ({}),
+    intialState: () => ({ eventTypes: new Set(["product.name-changed"]), oldName: {} }),
   };
 };
