@@ -49,13 +49,13 @@ export const ChangeName = (): Decider<ChangeNameCommand, ChangeNameState, Produc
       switch (event.event.type) {
         case "product.added":
           return {
-            eventTypes: state.eventTypes.add("product.added"),
+            reducedEvents: state.reducedEvents.add("product.added"),
             oldName: { ...state.oldName, [event.event.id]: event.event.name },
           };
         case "product.name-changed":
           return { ...state, oldName: { ...state.oldName, [event.event.id]: event.event.newName } };
       }
     },
-    intialState: () => ({ eventTypes: new Set(["product.name-changed"]), oldName: {} }),
+    intialState: () => ({ reducedEvents: new Set(["product.name-changed"]), oldName: {} }),
   };
 };

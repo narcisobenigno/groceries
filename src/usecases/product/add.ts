@@ -40,5 +40,5 @@ export const AddProduct = (): Decider<AddProductCommand, AddProductState, Produc
   evolve: (state, event) => {
     return { ...state, [event.event.id]: true };
   },
-  intialState: () => ({ eventTypes: new Set(["product.added"]) }),
+  intialState: () => ({ reducedEvents: new Set(["product.added"]) }),
 });

@@ -5,7 +5,7 @@ export type Command = {
 };
 
 export type State<E extends eventstore.Event> = {
-  eventTypes: Set<E["type"]>;
+  reducedEvents: Set<E["type"]>;
 };
 
 export interface Decider<C extends Command, S extends State<E>, E extends eventstore.Event> {

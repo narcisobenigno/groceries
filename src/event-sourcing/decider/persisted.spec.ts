@@ -178,7 +178,7 @@ const CreateDecider = (): Decider<CreateCommand, CreateState, CreatedEvent> => {
       return { ...state, exists: { [event.event.id]: true } };
     },
 
-    intialState: () => ({ eventTypes: new Set(["created"]), exists: {} }),
+    intialState: () => ({ reducedEvents: new Set(["created"]), exists: {} }),
   };
 };
 
@@ -208,7 +208,7 @@ const UpdateDecider = (): Decider<UpdateCommand, UpdateState, TestEvent> => {
     evolve: (state, event) => {
       if (event.event.type === "created") {
         return {
-          eventTypes: state.eventTypes.add("created"),
+          reducedEvents: state.reducedEvents.add("created"),
           oldValue: { ...state.oldValue, [event.event.id]: event.event.value },
         };
       }
@@ -218,6 +218,6 @@ const UpdateDecider = (): Decider<UpdateCommand, UpdateState, TestEvent> => {
       return state;
     },
 
-    intialState: () => ({ eventTypes: new Set(["updated"]), oldValue: {} }),
+    intialState: () => ({ reducedEvents: new Set(["updated"]), oldValue: {} }),
   };
 };
