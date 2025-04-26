@@ -5,6 +5,7 @@ import { product } from "@/usecases";
 import express, { type NextFunction, type Request, type Response } from "express";
 import expressLayouts from "express-ejs-layouts";
 import helmet from "helmet";
+import morgan from "morgan";
 import * as products from "./products";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -40,6 +41,7 @@ function configureExpress(routes: (_: ExpressApp) => void): () => ExpressApp {
     app.use(express.urlencoded({ extended: true }));
     app.use(express.static(path.join(__dirname, "public")));
     app.use(helmet());
+    app.use(morgan("combined"));
 
     routes(app);
 
