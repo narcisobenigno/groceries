@@ -1,13 +1,17 @@
-<html>
+<html lang="en">
 <head>
 	<title>Grocery List</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="color-scheme" content="light dark">
 	<link rel="stylesheet" href="/css/pico.min.css">
 </head>
 <body class="container">
 	<form action="/products" method="POST">
-		<label for="name">Name:</label>
-		<input type="text" id="name" name="name" required>
-		<button type="submit">Submit</button>
+		<fieldset role="group">
+			<input type="text" id="name" name="name" placeholder="Name" aria-label="Name" required>
+			<button type="submit">Add</button>
+		</fieldset>
 	</form>
 	<table>
 		<thead>
@@ -17,11 +21,11 @@
 			</tr>
 		</thead>
 		<tbody>
-			<% products.forEach(function(product) { %>
+			<% products.forEach(({name, id}) => { %>
 				<tr>
-					<td><%= product.name %></td>
+					<td><%= name %></td>
 					<td>
-						<form action="/products/<%= product.id %>?_method=DELETE" method="POST">
+						<form action="/products/<%= id %>?_method=DELETE" method="POST">
 							<button type="submit">Delete</button>
 						</form>
 					</td>
