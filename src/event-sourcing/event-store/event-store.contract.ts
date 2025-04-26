@@ -78,7 +78,6 @@ export const eventStoreContractTest = (store: <E extends Event>(parser: ParseEve
               },
             ],
             {
-              lastEventPosition: BigInt(0),
               query: {
                 streamId: ["stream-1"],
                 events: ["created"],
@@ -86,6 +85,49 @@ export const eventStoreContractTest = (store: <E extends Event>(parser: ParseEve
             },
           ),
         ).rejects.toThrow("Concurrency conflict");
+      });
+
+      it("doesn't conflict when different stream", async () => {
+        await eventStore.save([
+          {
+            streamId: "stream-1",
+            type: "created",
+            event: { type: "created", data: 1 },
+          },
+        ]);
+        await eventStore.save([
+          {
+            streamId: "stream-2",
+            type: "created",
+            event: { type: "created", data: 2 },
+          },
+        ]);
+
+        await expect(
+          eventStore.save(
+            [
+              {
+                streamId: "stream-1",
+                type: "updated",
+                event: { type: "updated", data: 2 },
+              },
+            ],
+            {
+              lastEventPosition: BigInt(1),
+              query: {
+                streamId: ["stream-1"],
+                events: ["created"],
+              },
+            },
+          ),
+        ).resolves.toMatchObject([
+          {
+            streamId: ["stream-1"],
+            type: "updated",
+            event: { type: "updated", data: 2 },
+            position: 3n,
+          },
+        ]);
       });
 
       it("succeeds when write condition passes", async () => {
@@ -447,7 +489,6 @@ export const eventStoreContractTest = (store: <E extends Event>(parser: ParseEve
                   event: { type: "created", data: i },
                 },
               ],
-
               {
                 lastEventPosition: 1n,
                 query: {

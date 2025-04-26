@@ -44,7 +44,7 @@ describe("Persisted Decider", () => {
     const decider = CreateDecider();
     const run = Persisted<CreateCommand, CreateState, CreatedEvent>(decider, eventStore);
 
-    eventStore.save([
+    await eventStore.save([
       {
         streamId: ["1"],
         type: "created",
@@ -89,7 +89,7 @@ describe("Persisted Decider", () => {
     const decider = UpdateDecider();
     const run = Persisted<UpdateCommand, UpdateState, TestEvent>(decider, eventStore);
 
-    eventStore.save([
+    await eventStore.save([
       {
         streamId: ["1"],
         type: "created",

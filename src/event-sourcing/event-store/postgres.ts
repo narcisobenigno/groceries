@@ -76,7 +76,12 @@ export const Postgres = async <E extends Event>(
           ${
             writeCondition
               ? sql`
-                  "Position" > ${writeCondition.lastEventPosition.toString()}
+                  TRUE
+                  ${
+                    writeCondition.lastEventPosition
+                      ? sql`AND "Position" > ${writeCondition.lastEventPosition.toString()} `
+                      : sql``
+                  }
                   ${
                     writeCondition.query.streamId.length > 0
                       ? sql`AND "StreamID" && ${sql.array(writeCondition.query.streamId)}`
@@ -92,6 +97,7 @@ export const Postgres = async <E extends Event>(
                   FALSE
               `
           }
+          LIMIT 1
       )
       RETURNING
         "Position" as "position",

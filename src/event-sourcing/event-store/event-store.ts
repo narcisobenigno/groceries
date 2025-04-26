@@ -20,7 +20,7 @@ export interface Envelope<E extends Event> {
 }
 
 export interface WriteCondition {
-  lastEventPosition: bigint;
+  lastEventPosition?: bigint;
   query: {
     streamId: string[];
     events?: string[];

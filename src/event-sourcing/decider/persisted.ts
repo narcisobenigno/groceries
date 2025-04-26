@@ -16,7 +16,7 @@ export function Persisted<C extends Command, S extends State<E>, E extends event
     const events = await decider.decide(command, state);
 
     return store.save(events, {
-      lastEventPosition: existingEvents[existingEvents.length - 1]?.position || 0n,
+      lastEventPosition: existingEvents[existingEvents.length - 1]?.position,
       query: { streamId: streamIds },
     });
   };
