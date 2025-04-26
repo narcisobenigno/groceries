@@ -12,12 +12,12 @@ export function Persisted<C extends Command, S extends State<E>, E extends event
 ): ExecuteCommand<C, E> {
   return async (streamIds: string[], command: C): Promise<eventstore.PersistedEnvelope<E>[]> => {
     const existingEvents = await store.read({ streamIds });
+    const state = existingEvents.reduce(decider.evolve, decider.intialState());
+    const events = await decider.decide(command, state);
 
-    return decider.decide(command, existingEvents.reduce(decider.evolve, decider.intialState())).then((events) =>
-      store.save(events, {
-        lastEventPosition: existingEvents[existingEvents.length - 1]?.position || 0n,
-        query: { streamId: streamIds },
-      }),
-    );
+    return store.save(events, {
+      lastEventPosition: existingEvents[existingEvents.length - 1]?.position || 0n,
+      query: { streamId: streamIds },
+    });
   };
 }
