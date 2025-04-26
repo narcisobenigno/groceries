@@ -2,7 +2,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { decider, eventstore } from "@/event-sourcing";
 import { product } from "@/usecases";
-import express from "express";
+import express, { type NextFunction, type Request, type Response } from "express";
 import * as products from "./products";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -30,6 +30,11 @@ export const createApp = (): ReturnType<typeof express> => {
       ),
     ),
   );
+
+  app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+    console.error("error handling", err.stack);
+    res.status(500).render("error");
+  });
 
   return app;
 };

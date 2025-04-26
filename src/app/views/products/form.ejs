@@ -1,36 +1,49 @@
 <html lang="en">
-<head>
-	<title>Grocery List</title>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="color-scheme" content="light dark">
-	<link rel="stylesheet" href="/css/pico.min.css">
-</head>
-<body class="container">
-	<form action="/products" method="POST">
-		<fieldset role="group">
-			<input type="text" id="name" name="name" placeholder="Name" aria-label="Name" required>
-			<button type="submit">Add</button>
-		</fieldset>
-	</form>
-	<table>
-		<thead>
-			<tr>
-				<th>Name</th>
-				<th>Actions</th>
-			</tr>
-		</thead>
-		<tbody>
-			<% products.forEach(({name, id}) => { %>
-				<tr>
-					<td><%= name %></td>
-					<td>
-						<form action="/products/<%= id %>?_method=DELETE" method="POST">
-							<button type="submit">Delete</button>
-						</form>
-					</td>
-				</tr>
-			<% }); %>
-		</tbody>
-	</table>
+	<head>
+		<title>Grocery List</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="color-scheme" content="light dark">
+		<link rel="stylesheet" href="/css/pico.min.css">
+	</head>
+	<body class="container">
+		<header>
+			<nav>
+				<ul>
+					<strong>Grocery List</strong>
+				</ul>
+				<ul>
+					<li><a href="/products">Products</a></li>
+				</ul>
+			</nav>
+		</header>
+		<main>
+			<form action="/products" method="POST">
+				<fieldset role="group">
+					<legend>Add a product</legend>
+					<input type="text" id="name" name="name" placeholder="Name" aria-label="Name" required>
+					<button type="submit">Add</button>
+				</fieldset>
+			</form>
+			<table>
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					<% products.forEach(({name, id}) => { %>
+						<tr>
+							<td><%= name %></td>
+							<td>
+								<form action="/products/<%= id %>?_method=DELETE" method="POST">
+									<button type="submit">Delete</button>
+								</form>
+							</td>
+						</tr>
+					<% }); %>
+				</tbody>
+			</table>
+		</main>
 </html>

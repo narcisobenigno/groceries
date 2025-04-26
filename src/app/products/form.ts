@@ -6,8 +6,13 @@ export function form(eventStore: eventstore.EventStore<product.ProductAdded>) {
   return async (_request: Request, response: Response) => {
     const events = await eventStore.read({ events: ["product.added"] });
 
+    const test = await myFetch();
     response.render("products/form", {
-      products: events.map((event) => ({ id: event.event.id, name: event.event.name })),
+      products: events.map((event) => ({ id: event.event.id, name: event.event.name, test })),
     });
   };
+}
+
+async function myFetch() {
+  throw new Error("not implemented");
 }
