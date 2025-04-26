@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { decider, eventstore } from "@/event-sourcing";
 import { product } from "@/usecases";
 import express, { type NextFunction, type Request, type Response } from "express";
+import expressLayouts from "express-ejs-layouts";
 import * as products from "./products";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -12,7 +13,10 @@ export const createApp = (): ReturnType<typeof express> => {
   const app = express();
 
   app.set("view engine", "ejs");
-  app.set("views", path.join(__dirname, "views"));
+  app.set("views", [path.join(__dirname, "views"), path.join(__dirname, "views", "partials")]);
+
+  app.set("layout", path.join("layouts", "basic"));
+  app.use(expressLayouts);
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
@@ -33,7 +37,7 @@ export const createApp = (): ReturnType<typeof express> => {
 
   app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
     console.error("error handling", err.stack);
-    res.status(500).render("error");
+    res.status(500).render("error", { title: "Oops!" });
   });
 
   return app;
