@@ -6,7 +6,7 @@ describe("Persisted Decider", () => {
   it("persistes decision to event store", async () => {
     const eventStore = new eventstore.InMemory<CreatedEvent>();
     const decider = CreateDecider();
-    const run = Persisted<CreatedEvent, CreateCommand, CreateState>(decider, eventStore);
+    const run = Persisted<CreateCommand, CreateState, CreatedEvent>(decider, eventStore);
 
     const command: CreateCommand = {
       type: "create",
@@ -42,7 +42,7 @@ describe("Persisted Decider", () => {
   it("reduces existing events", async () => {
     const eventStore = new eventstore.InMemory<CreatedEvent>();
     const decider = CreateDecider();
-    const run = Persisted<CreatedEvent, CreateCommand, CreateState>(decider, eventStore);
+    const run = Persisted<CreateCommand, CreateState, CreatedEvent>(decider, eventStore);
 
     eventStore.save([
       {
@@ -67,7 +67,7 @@ describe("Persisted Decider", () => {
   it("only one of the concurrent command gets saved for new streams", async () => {
     const eventStore = new eventstore.InMemory<CreatedEvent>();
     const decider = CreateDecider();
-    const run = Persisted<CreatedEvent, CreateCommand, CreateState>(decider, eventStore);
+    const run = Persisted<CreateCommand, CreateState, CreatedEvent>(decider, eventStore);
 
     const command: CreateCommand = {
       type: "create",
@@ -87,7 +87,7 @@ describe("Persisted Decider", () => {
   it("only one of the concurrent command gets saved for existing streams", async () => {
     const eventStore = new eventstore.InMemory<TestEvent>();
     const decider = UpdateDecider();
-    const run = Persisted<TestEvent, UpdateCommand, UpdateState>(decider, eventStore);
+    const run = Persisted<UpdateCommand, UpdateState, TestEvent>(decider, eventStore);
 
     eventStore.save([
       {

@@ -3,14 +3,17 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
+    "dev": "cd src/app; tsx watch index.ts",
+    "build": "tsc",
+    "start": "node dist/app/index.js",
+    "prestart": "pnpm build",
     "lint": "biome lint src --write",
     "format": "biome format src --write",
     "check": "biome check src",
     "ci": "biome ci src",
-    "build": "tsc",
     "test": "eval \"$(cat .env)\" && NODE_OPTIONS=--experimental-vm-modules NODE_NO_WARNINGS=1 jest",
-    "start": "node dist/index.js",
     "prepare": "husky"
   },
   "keywords": [],
@@ -20,18 +23,28 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@testcontainers/postgresql": "^10.24.2",
+    "@types/cors": "^2.8.17",
+    "@types/ejs": "^3.1.5",
+    "@types/express": "^5.0.1",
     "@types/jest": "^29.5.14",
+    "@types/morgan": "^1.9.9",
     "@types/node": "^22.14.1",
     "@types/pg": "^8.11.12",
     "husky": "^9.1.7",
     "jest": "^29.7.0",
     "testcontainers": "^10.24.2",
     "ts-jest": "^29.3.1",
-    "ts-node": "^10.9.2",
     "tsx": "^4.19.3",
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "postgres": "^3.4.5"
+    "cors": "^2.8.5",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "helmet": "^8.1.0",
+    "morgan": "^1.10.0",
+    "postgres": "^3.4.5",
+    "ulid": "^3.0.0",
+    "zod": "^3.24.3"
   }
 }

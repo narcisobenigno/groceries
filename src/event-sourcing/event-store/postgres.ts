@@ -116,7 +116,7 @@ export const Postgres = async <E extends Event>(
       events = [],
       limit = 0,
       offset,
-    }: ReadCondition): Promise<PersistedEnvelope<E>[]> => {
+    }: ReadCondition<E>): Promise<PersistedEnvelope<E>[]> => {
       const eventsFound = await sql<PersistedEnvelope<E>[]>`
         SELECT
             "Position" as "position",
@@ -130,7 +130,7 @@ export const Postgres = async <E extends Event>(
             ${upto ? sql`AND "Position" <= ${upto.toString()}` : sql``}
             ${offset ? sql`AND "Position" > ${offset.toString()}` : sql``}
             ${streamIDs.length > 0 ? sql`AND "StreamID" && ${sql.array(streamIDs)}` : sql``}
-            ${events.length > 0 ? sql`AND "Type" IN ${sql(events)}` : sql``}
+            ${events.length > 0 ? sql`AND "Type" IN ${sql(events as string[])}` : sql``}
         ORDER BY
             "Position" ASC
         ${sql`LIMIT ${limit || defaultLimit}`}

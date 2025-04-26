@@ -36,6 +36,6 @@
     }
   },
   "files": {
-    "ignore": ["node_modules", "dist", "coverage"]
+    "ignore": ["node_modules", "dist", "coverage", "src/app/public/css/pico.*"]
   }
 }

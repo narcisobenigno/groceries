@@ -1,4 +1,5 @@
 import type { Decider, State } from "@/event-sourcing/decider";
+import type { PersistedEnvelope } from "@/event-sourcing/event-store";
 import type { ProductEvent } from "./event";
 import type { Id } from "./id";
 
@@ -20,9 +21,9 @@ export type NameChanged = {
   oldName: string;
 };
 
-export const ChangeName = (): Decider<ChangeNameCommand, ChangeNameState, ProductEvent> => {
+export function ChangeName(): Decider<ChangeNameCommand, ChangeNameState, ProductEvent> {
   return {
-    decide: async (command, state) => {
+    decide: async (command: ChangeNameCommand, state: ChangeNameState) => {
       const oldName = state.oldName[command.id];
       if (!oldName) {
         throw new Error(`Product with id ${command.id} does not exist`);
@@ -45,7 +46,7 @@ export const ChangeName = (): Decider<ChangeNameCommand, ChangeNameState, Produc
         },
       ];
     },
-    evolve: (state, event) => {
+    evolve: (state: ChangeNameState, event: PersistedEnvelope<ProductEvent>) => {
       switch (event.event.type) {
         case "product.added":
           return {
@@ -58,4 +59,4 @@ export const ChangeName = (): Decider<ChangeNameCommand, ChangeNameState, Produc
     },
     intialState: () => ({ reducedEvents: new Set(["product.name-changed"]), oldName: {} }),
   };
-};
+}

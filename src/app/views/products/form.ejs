@@ -1,0 +1,32 @@
+<html>
+<head>
+	<title>Grocery List</title>
+	<link rel="stylesheet" href="/css/pico.min.css">
+</head>
+<body class="container">
+	<form action="/products" method="POST">
+		<label for="name">Name:</label>
+		<input type="text" id="name" name="name" required>
+		<button type="submit">Submit</button>
+	</form>
+	<table>
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Actions</th>
+			</tr>
+		</thead>
+		<tbody>
+			<% products.forEach(function(product) { %>
+				<tr>
+					<td><%= product.name %></td>
+					<td>
+						<form action="/products/<%= product.id %>?_method=DELETE" method="POST">
+							<button type="submit">Delete</button>
+						</form>
+					</td>
+				</tr>
+			<% }); %>
+		</tbody>
+	</table>
+</html>

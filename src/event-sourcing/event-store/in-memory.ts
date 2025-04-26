@@ -35,7 +35,7 @@ export class InMemory<E extends Event> implements EventStore<E> {
     return persistedRows;
   }
 
-  async read(conditions: ReadCondition): Promise<PersistedEnvelope<E>[]> {
+  async read(conditions: ReadCondition<E>): Promise<PersistedEnvelope<E>[]> {
     const { upto, streamIds, events, limit, offset } = conditions;
 
     const filtered = this.#store

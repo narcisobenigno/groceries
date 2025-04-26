@@ -4,7 +4,7 @@ export interface PersistedEnvelope<E extends Event> {
   position: bigint;
   timestamp: Date;
   streamId: string[];
-  type: string;
+  type: E["type"];
   event: E;
 }
 
@@ -27,16 +27,16 @@ export interface WriteCondition {
   };
 }
 
-export interface ReadCondition {
+export interface ReadCondition<E extends Event> {
   upto?: bigint;
   offset?: bigint;
   streamIds?: string[];
-  events?: string[];
+  events?: E["type"][];
   limit?: number;
 }
 
 export interface EventStore<E extends Event> {
   save(envelopes: Envelope<E>[], writeCondition?: WriteCondition): Promise<PersistedEnvelope<E>[]>;
 
-  read(conditions: ReadCondition): Promise<PersistedEnvelope<E>[]>;
+  read(conditions: ReadCondition<E>): Promise<PersistedEnvelope<E>[]>;
 }
