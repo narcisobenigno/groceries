@@ -9,19 +9,8 @@ import * as products from "./products";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export const createApp = (): ReturnType<typeof express> => {
-  const app = express();
-
-  app.set("view engine", "ejs");
-  app.set("views", [path.join(__dirname, "views"), path.join(__dirname, "views", "partials")]);
-
-  app.set("layout", path.join("layouts", "basic"));
-  app.use(expressLayouts);
-
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
-  app.use(express.static(path.join(__dirname, "public")));
-
+type ExpressApp = ReturnType<typeof express>;
+export const createApp = configureExpress((app) => {
   const eventStore = new eventstore.InMemory<product.ProductAdded>();
 
   app.get("/products", products.form(eventStore));
@@ -34,11 +23,29 @@ export const createApp = (): ReturnType<typeof express> => {
       ),
     ),
   );
+});
 
-  app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-    console.error("error handling", err.stack);
-    res.status(500).render("error", { title: "Oops!" });
-  });
+function configureExpress(routes: (_: ExpressApp) => void): () => ExpressApp {
+  return () => {
+    const app = express();
 
-  return app;
-};
+    app.set("view engine", "ejs");
+    app.set("views", [path.join(__dirname, "views"), path.join(__dirname, "views", "partials")]);
+
+    app.set("layout", path.join("layouts", "basic"));
+    app.use(expressLayouts);
+
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
+    app.use(express.static(path.join(__dirname, "public")));
+
+    routes(app);
+
+    app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+      console.error("error handling", err.stack);
+      res.status(500).render("error", { title: "Oops!" });
+    });
+
+    return app;
+  };
+}
