@@ -1,13 +1,12 @@
-import type { eventstore } from "@/event-sourcing";
 import type { product } from "@/usecases";
 import type { Request, Response } from "express";
 
-export function form(eventStore: eventstore.EventStore<product.ProductAdded>) {
+export function form(projection: product.InMemoryProjection) {
   return async (_request: Request, response: Response) => {
-    const events = await eventStore.read({ events: ["product.added"] });
+    await projection.catchup();
 
     response.render("products/form", {
-      products: events.map((event) => ({ id: event.event.id, name: event.event.name })),
+      products: await projection.all(),
       title: "Grocery Products",
     });
   };

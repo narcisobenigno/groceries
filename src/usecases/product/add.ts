@@ -1,4 +1,5 @@
 import type { Decider, State } from "@/event-sourcing/decider";
+import type { ProductEvent } from "./event";
 import type { Id } from "./id";
 
 export type AddProductCommand = {
@@ -17,7 +18,7 @@ export type ProductAdded = {
   name: string;
 };
 
-export function AddProduct(): Decider<AddProductCommand, AddProductState, ProductAdded> {
+export function AddProduct(): Decider<AddProductCommand, AddProductState, ProductEvent> {
   return {
     decide: async (command, state) => {
       if (state[command.id]) {

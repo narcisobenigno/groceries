@@ -13,13 +13,13 @@ const __dirname = path.dirname(__filename);
 
 type ExpressApp = ReturnType<typeof express>;
 export const createApp = configureExpress((app) => {
-  const eventStore = new eventstore.InMemory<product.ProductAdded>();
+  const eventStore = new eventstore.InMemory<product.ProductEvent>();
 
-  app.get("/products", products.form(eventStore));
+  app.get("/products", products.form(product.InMemoryProjection(eventStore)));
   app.post(
     "/products",
     products.add(
-      decider.Persisted<product.AddProductCommand, product.AddProductState, product.ProductAdded>(
+      decider.Persisted<product.AddProductCommand, product.AddProductState, product.ProductEvent>(
         product.AddProduct(),
         eventStore,
       ),

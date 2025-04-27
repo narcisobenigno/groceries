@@ -4,7 +4,7 @@ import type { Request, Response } from "express";
 import { ulid } from "ulid";
 
 export const add =
-  (execute: decider.ExecuteCommand<product.AddProductCommand, product.ProductAdded>) =>
+  (execute: decider.ExecuteCommand<product.AddProductCommand, product.ProductEvent>) =>
   async (request: Request, response: Response) => {
     const id = `product_${ulid()}` as const;
 
