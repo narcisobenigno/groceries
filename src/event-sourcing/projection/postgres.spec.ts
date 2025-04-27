@@ -2,7 +2,7 @@ import { eventstore } from "@/event-sourcing";
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 import postgres, { type Sql } from "postgres";
 import { Wait } from "testcontainers";
-import { Postgres, type Projectors } from "./postgres";
+import { Postgres, type PostgresProjectors } from "./postgres";
 
 describe("PostgresProjector", () => {
   let container: StartedPostgreSqlContainer;
@@ -215,7 +215,7 @@ class TestProject {
     return [await sql`CREATE TABLE IF NOT EXISTS "projection" (number_id TEXT PRIMARY KEY, value int)`];
   }
 
-  all(): Projectors<TestEvents> {
+  all(): PostgresProjectors<TestEvents> {
     return {
       created: async (sql, event) => {
         const payload = event.event;

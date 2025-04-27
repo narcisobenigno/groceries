@@ -3,12 +3,12 @@ import type postgres from "postgres";
 import type { Sql } from "postgres";
 
 type EventType<E extends eventstore.Event, Type extends E["type"]> = Extract<E, { type: Type }>;
-export type Projectors<E extends eventstore.Event> = {
+export type PostgresProjectors<E extends eventstore.Event> = {
   [type in E["type"]]?: (sql: Sql, event: eventstore.PersistedEnvelope<EventType<E, type>>) => Promise<postgres.Row[]>;
 };
-interface Project<E extends eventstore.Event> {
+interface PostgresProject<E extends eventstore.Event> {
   init(sql: Sql): Promise<postgres.Row[]>;
-  all(): Projectors<E>;
+  all(): PostgresProjectors<E>;
 }
 
 type Position = {
@@ -19,7 +19,7 @@ type Params<E extends eventstore.Event> = {
   schemaName: string;
   sql: Sql;
   eventStore: eventstore.EventStore<E>;
-  projectors: Project<E>;
+  projectors: PostgresProject<E>;
   limit?: number;
 };
 
