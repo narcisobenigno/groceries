@@ -25,6 +25,17 @@ export const createApp = configure((app) => {
       ),
     ),
   );
+
+  app.get("/products/:id/edit", products.edit(product.InMemoryProjection(eventStore)));
+  app.post(
+    "/products/:id/edit",
+    products.change(
+      decider.Persisted<product.ChangeNameCommand, product.ChangeNameState, product.ProductEvent>(
+        product.ChangeName(),
+        eventStore,
+      ),
+    ),
+  );
 });
 
 function configure(routes: (_: ExpressApp) => void): () => ExpressApp {

@@ -5,23 +5,4 @@
 		<button type="submit">Add</button>
 	</fieldset>
 </form>
-<table>
-	<thead>
-		<tr>
-			<th>Name</th>
-			<th>Actions</th>
-		</tr>
-	</thead>
-	<tbody>
-		<% products.forEach(({name, id}) => { %>
-			<tr>
-				<td><%= name %></td>
-				<td>
-					<form action="/products/<%= id %>?_method=DELETE" method="POST">
-						<button type="submit">Delete</button>
-					</form>
-				</td>
-			</tr>
-		<% }); %>
-	</tbody>
-</table>
+<%- include('./_table', { products }) %>

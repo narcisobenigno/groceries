@@ -3,12 +3,12 @@ import type { PersistedEnvelope } from "@/event-sourcing/event-store";
 import type { ProductEvent } from "./event";
 import type { Id } from "./id";
 
-type ChangeNameCommand = {
+export type ChangeNameCommand = {
   type: "product.change-name";
   id: Id;
   newName: string;
 };
-type ChangeNameState = State<ProductEvent> & {
+export type ChangeNameState = State<ProductEvent> & {
   oldName: {
     [id in ChangeNameCommand["id"]]?: string;
   };

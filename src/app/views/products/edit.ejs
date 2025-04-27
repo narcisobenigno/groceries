@@ -1,0 +1,8 @@
+<form action="/products/<%= edited.id %>/edit" method="POST">
+	<fieldset role="group">
+		<legend>Change Product</legend>
+		<input type="text" id="name" name="name" placeholder="Name" aria-label="Name" value="<%= edited.name %>" required>
+		<button type="submit">Change</button>
+	</fieldset>
+</form>
+<%- include('./_table', { products }) %>

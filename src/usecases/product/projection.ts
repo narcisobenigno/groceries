@@ -7,4 +7,5 @@ export type Product = {
 
 export interface Projection {
   all(): Promise<Product[]>;
+  byId(id: product.Id): Promise<Product>;
 }

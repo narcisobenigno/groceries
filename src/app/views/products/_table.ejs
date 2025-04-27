@@ -1,0 +1,18 @@
+<table>
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Actions</th>
+		</tr>
+	</thead>
+	<tbody>
+		<% products.forEach(({name, id}) => { %>
+			<tr>
+				<td><%= name %></td>
+				<td>
+					<a href="/products/<%= id %>/edit">Edit</a>
+				</td>
+			</tr>
+		<% }); %>
+	</tbody>
+</table>

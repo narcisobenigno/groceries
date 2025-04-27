@@ -6,6 +6,13 @@ export type InMemoryProjection = projection.Projection & {
   catchup(): Promise<void>;
 };
 
+export class ProductNotFoundError extends Error {
+  constructor(id: product.Id) {
+    super(`Product with id '${id}' not found`);
+    this.name = "ProductNotFoundError";
+  }
+}
+
 export function InMemoryProjection(eventStore: eventstore.EventStore<product.ProductEvent>) {
   let products: Record<product.Id, projection.Product> = {};
   let lastPosition: bigint | undefined = undefined;
@@ -35,5 +42,13 @@ export function InMemoryProjection(eventStore: eventstore.EventStore<product.Pro
     lastPosition = events[events.length - 1]?.position || lastPosition;
   }
 
-  return { all, catchup };
+  async function byId(id: product.Id): Promise<projection.Product> {
+    const product = products[id];
+    if (!product) {
+      throw new ProductNotFoundError(id);
+    }
+    return product;
+  }
+
+  return { all, byId, catchup };
 }
