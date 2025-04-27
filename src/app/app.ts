@@ -12,7 +12,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 type ExpressApp = ReturnType<typeof express>;
-export const createApp = configureExpress((app) => {
+export const createApp = configure((app) => {
   const eventStore = new eventstore.InMemory<product.ProductEvent>();
 
   app.get("/products", products.form(product.InMemoryProjection(eventStore)));
@@ -27,7 +27,7 @@ export const createApp = configureExpress((app) => {
   );
 });
 
-function configureExpress(routes: (_: ExpressApp) => void): () => ExpressApp {
+function configure(routes: (_: ExpressApp) => void): () => ExpressApp {
   return () => {
     const app = express();
 
