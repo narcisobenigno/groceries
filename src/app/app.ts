@@ -15,6 +15,8 @@ type ExpressApp = ReturnType<typeof express>;
 export const createApp = configure((app) => {
   const eventStore = new eventstore.InMemory<product.ProductEvent>();
 
+  app.get("/", products.form(product.InMemoryProjection(eventStore)));
+
   app.get("/products", products.form(product.InMemoryProjection(eventStore)));
   app.post(
     "/products",

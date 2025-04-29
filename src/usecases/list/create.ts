@@ -1,24 +1,24 @@
 import type { Decider, State } from "@/event-sourcing/decider";
+import type { ListEvent } from "./event";
+import type { Id } from "./id";
 
-export type Id = `list_${string}`;
-
-export type CreateListCommand = {
+export type CreateCommand = {
   type: "list.create";
   id: Id;
   name: string;
 };
 
+export type CreateState = State<ListCreated> & {
+  [id in CreateCommand["id"]]?: boolean;
+};
+
 export type ListCreated = {
   type: "list.created";
-  id: CreateListCommand["id"];
+  id: CreateCommand["id"];
   name: string;
 };
 
-export type CreateListState = State<ListCreated> & {
-  [id in CreateListCommand["id"]]?: boolean;
-};
-
-export function Create(): Decider<CreateListCommand, CreateListState, ListCreated> {
+export function Create(): Decider<CreateCommand, CreateState, ListEvent> {
   return {
     decide: async (command, state) => {
       if (state[command.id]) {
