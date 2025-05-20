@@ -1,11 +1,11 @@
-import type { product } from "@/usecases";
+import type { list } from "@/usecases";
 
-export type Product = {
-  id: product.Id;
+export type List = {
+  id: list.Id;
   name: string;
 };
 
 export interface Projection {
-  all(): Promise<Product[]>;
-  byId(id: product.Id): Promise<Product>;
+  all(): Promise<List[]>;
+  byId(id: list.Id): Promise<List>;
 }

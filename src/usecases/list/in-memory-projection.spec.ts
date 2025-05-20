@@ -1,135 +1,133 @@
 import { eventstore } from "@/event-sourcing";
-import type { product } from "@/usecases";
+import type { list } from "@/usecases";
 import { InMemoryProjection } from "./in-memory-projection";
 
 describe("InMemoryProjector", () => {
   describe("all", () => {
-    it("projects events sorted by name", async () => {
-      const eventStore = new eventstore.InMemory<product.ProductEvent>();
+    it("returns all lists sorted by name", async () => {
+      const eventStore = new eventstore.InMemory<list.ListEvent>();
       const projector = InMemoryProjection(eventStore);
 
       await eventStore.save([
         {
-          streamId: ["product_1234"],
-          type: "product.added",
-          event: { type: "product.added", id: "product_1234", name: "Product 1234" },
+          streamId: ["list_1234"],
+          type: "list.created",
+          event: { type: "list.created", id: "list_1234", name: "List 1234" },
         },
         {
-          streamId: ["product_1234"],
-          type: "product.name-changed",
+          streamId: ["list_1234"],
+          type: "list.name-changed",
           event: {
-            type: "product.name-changed",
-            id: "product_1234",
-            oldName: "Product 1234",
-            newName: "Updated Product 1234",
+            type: "list.name-changed",
+            id: "list_1234",
+            oldName: "List 1234",
+            newName: "Updated List 1234",
           },
         },
         {
-          streamId: ["product_4321"],
-          type: "product.added",
-          event: { type: "product.added", id: "product_4321", name: "Product 4321" },
+          streamId: ["list_4321"],
+          type: "list.created",
+          event: { type: "list.created", id: "list_4321", name: "List 4321" },
         },
       ]);
 
       await projector.catchup();
 
       await expect(projector.all()).resolves.toEqual([
-        { id: "product_4321", name: "Product 4321" },
-        { id: "product_1234", name: "Updated Product 1234" },
+        { id: "list_4321", name: "List 4321" },
+        { id: "list_1234", name: "Updated List 1234" },
       ]);
     });
 
     it("projects from where it left off", async () => {
-      const eventStore = new eventstore.InMemory<product.ProductEvent>();
+      const eventStore = new eventstore.InMemory<list.ListEvent>();
       const projector = InMemoryProjection(eventStore);
 
       await eventStore.save([
         {
-          streamId: ["product_1234"],
-          type: "product.added",
-          event: { type: "product.added", id: "product_1234", name: "Product 1234" },
+          streamId: ["list_1234"],
+          type: "list.created",
+          event: { type: "list.created", id: "list_1234", name: "List 1234" },
         },
         {
-          streamId: ["product_4321"],
-          type: "product.added",
-          event: { type: "product.added", id: "product_4321", name: "Product 4321" },
+          streamId: ["list_4321"],
+          type: "list.created",
+          event: { type: "list.created", id: "list_4321", name: "List 4321" },
         },
       ]);
 
       await projector.catchup();
       await expect(projector.all()).resolves.toEqual([
-        { id: "product_1234", name: "Product 1234" },
-        { id: "product_4321", name: "Product 4321" },
+        { id: "list_1234", name: "List 1234" },
+        { id: "list_4321", name: "List 4321" },
       ]);
 
       await eventStore.save([
         {
-          streamId: ["product_1234"],
-          type: "product.name-changed",
+          streamId: ["list_1234"],
+          type: "list.name-changed",
           event: {
-            type: "product.name-changed",
-            id: "product_1234",
-            oldName: "Product 1234",
-            newName: "Updated Product 1234",
+            type: "list.name-changed",
+            id: "list_1234",
+            oldName: "List 1234",
+            newName: "Updated List 1234",
           },
         },
       ]);
 
       await projector.catchup();
       await expect(projector.all()).resolves.toEqual([
-        { id: "product_4321", name: "Product 4321" },
-        { id: "product_1234", name: "Updated Product 1234" },
+        { id: "list_4321", name: "List 4321" },
+        { id: "list_1234", name: "Updated List 1234" },
       ]);
     });
   });
 
   describe("byId", () => {
     it("projects events by id", async () => {
-      const eventStore = new eventstore.InMemory<product.ProductEvent>();
+      const eventStore = new eventstore.InMemory<list.ListEvent>();
       const projector = InMemoryProjection(eventStore);
 
       await eventStore.save([
         {
-          streamId: ["product_1234"],
-          type: "product.added",
-          event: { type: "product.added", id: "product_1234", name: "Product 1234" },
+          streamId: ["list_1234"],
+          type: "list.created",
+          event: { type: "list.created", id: "list_1234", name: "List 1234" },
         },
         {
-          streamId: ["product_1234"],
-          type: "product.name-changed",
+          streamId: ["list_1234"],
+          type: "list.name-changed",
           event: {
-            type: "product.name-changed",
-            id: "product_1234",
-            oldName: "Product 1234",
-            newName: "Updated Product 1234",
+            type: "list.name-changed",
+            id: "list_1234",
+            oldName: "List 1234",
+            newName: "Updated List 1234",
           },
         },
         {
-          streamId: ["product_4321"],
-          type: "product.added",
-          event: { type: "product.added", id: "product_4321", name: "Product 4321" },
+          streamId: ["list_4321"],
+          type: "list.created",
+          event: { type: "list.created", id: "list_4321", name: "List 4321" },
         },
       ]);
 
       await projector.catchup();
 
-      await expect(projector.byId("product_1234")).resolves.toEqual({
-        id: "product_1234",
-        name: "Updated Product 1234",
+      await expect(projector.byId("list_1234")).resolves.toEqual({
+        id: "list_1234",
+        name: "Updated List 1234",
       });
-      await expect(projector.byId("product_4321")).resolves.toEqual({
-        id: "product_4321",
-        name: "Product 4321",
+      await expect(projector.byId("list_4321")).resolves.toEqual({
+        id: "list_4321",
+        name: "List 4321",
       });
     });
 
     it("rejects when id not found", async () => {
-      const eventStore = new eventstore.InMemory<product.ProductEvent>();
+      const eventStore = new eventstore.InMemory<list.ListEvent>();
       const projector = InMemoryProjection(eventStore);
 
-      await expect(projector.byId("product_notexists")).rejects.toThrow(
-        "Product with id 'product_notexists' not found",
-      );
+      await expect(projector.byId("list_notexists")).rejects.toThrow("List with id 'list_notexists' not found");
     });
   });
 });

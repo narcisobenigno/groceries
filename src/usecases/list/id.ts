@@ -1,1 +1,1 @@
-export type Id = `product_${string}`;
+export type Id = `list_${string}`;

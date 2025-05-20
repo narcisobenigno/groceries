@@ -1,53 +1,53 @@
 import type { eventstore } from "@/event-sourcing";
-import type { product } from "..";
+import type { list } from "..";
 import type * as projection from "./projection";
 
 export type InMemoryProjection = projection.Projection & {
   catchup(): Promise<void>;
 };
 
-export class ProductNotFoundError extends Error {
-  constructor(id: product.Id) {
-    super(`Product with id '${id}' not found`);
-    this.name = "ProductNotFoundError";
+export class ListNotFoundError extends Error {
+  constructor(id: list.Id) {
+    super(`List with id '${id}' not found`);
+    this.name = "ListNotFoundError";
   }
 }
 
-export function InMemoryProjection(eventStore: eventstore.EventStore<product.ProductEvent>) {
-  let products: Record<product.Id, projection.Product> = {};
+export function InMemoryProjection(eventStore: eventstore.EventStore<list.ListEvent>) {
+  let lists: Record<list.Id, projection.List> = {};
   let lastPosition: bigint | undefined = undefined;
 
-  async function all(): Promise<projection.Product[]> {
-    return [...Object.values(products)].sort((a, b) => (a.name < b.name ? -1 : 1));
+  async function all(): Promise<projection.List[]> {
+    return [...Object.values(lists)].sort((a, b) => (a.name < b.name ? -1 : 1));
   }
 
   async function catchup(): Promise<void> {
     const events = await eventStore.read({
-      events: ["product.added", "product.name-changed"],
+      events: ["list.created", "list.name-changed"],
       offset: lastPosition,
     });
-    products = events.reduce((acc, event) => {
+    lists = events.reduce((acc, event) => {
       switch (event.event.type) {
-        case "product.added":
+        case "list.created":
           acc[event.event.id] = { id: event.event.id, name: event.event.name };
           break;
-        case "product.name-changed":
+        case "list.name-changed":
           if (acc[event.event.id]) {
             acc[event.event.id].name = event.event.newName;
           }
           break;
       }
       return acc;
-    }, products);
+    }, lists);
     lastPosition = events[events.length - 1]?.position || lastPosition;
   }
 
-  async function byId(id: product.Id): Promise<projection.Product> {
-    const product = products[id];
-    if (!product) {
-      throw new ProductNotFoundError(id);
+  async function byId(id: list.Id): Promise<projection.List> {
+    const list = lists[id];
+    if (!list) {
+      throw new ListNotFoundError(id);
     }
-    return product;
+    return list;
   }
 
   return { all, byId, catchup };

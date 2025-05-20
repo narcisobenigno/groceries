@@ -5,12 +5,12 @@ describe("Create List", () => {
     const addProduct = Create();
 
     await expect(
-      addProduct.decide({ type: "list.create", id: "product_123", name: "Test Product" }, addProduct.intialState()),
+      addProduct.decide({ type: "list.create", id: "list_123", name: "Test List" }, addProduct.intialState()),
     ).resolves.toEqual([
       {
-        streamId: ["product_123"],
+        streamId: ["list_123"],
         type: "list.created",
-        event: { type: "list.created", id: "product_123", name: "Test Product" },
+        event: { type: "list.created", id: "list_123", name: "Test List" },
       },
     ]);
   });
@@ -20,13 +20,13 @@ describe("Create List", () => {
 
     await expect(
       addProduct.decide(
-        { type: "list.create", id: "product_123", name: "Test Product" },
+        { type: "list.create", id: "list_123", name: "Test List" },
         addProduct.evolve(addProduct.intialState(), {
           type: "list.created",
-          streamId: ["product_123"],
+          streamId: ["list_123"],
           position: 1n,
           timestamp: new Date(),
-          event: { type: "list.created", id: "product_123", name: "Test Product" },
+          event: { type: "list.created", id: "list_123", name: "Test List" },
         }),
       ),
     ).resolves.toEqual([]);

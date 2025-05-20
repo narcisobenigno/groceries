@@ -1,11 +1,12 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { decider, eventstore } from "@/event-sourcing";
-import { product } from "@/usecases";
+import { list, product } from "@/usecases";
 import express, { type NextFunction, type Request, type Response } from "express";
 import expressLayouts from "express-ejs-layouts";
 import helmet from "helmet";
 import morgan from "morgan";
+import * as lists from "./lists";
 import * as products from "./products";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -14,8 +15,15 @@ const __dirname = path.dirname(__filename);
 type ExpressApp = ReturnType<typeof express>;
 export const createApp = configure((app) => {
   const eventStore = new eventstore.InMemory<product.ProductEvent>();
+  const listEventStore = new eventstore.InMemory<list.ListEvent>();
 
-  app.get("/", products.form(product.InMemoryProjection(eventStore)));
+  app.get("/", lists.form(list.InMemoryProjection(listEventStore)));
+  app.post(
+    "/lists",
+    lists.create(
+      decider.Persisted<list.CreateCommand, list.CreateState, list.ListEvent>(list.Create(), listEventStore),
+    ),
+  );
 
   app.get("/products", products.form(product.InMemoryProjection(eventStore)));
   app.post(
@@ -53,7 +61,7 @@ function configure(routes: (_: ExpressApp) => void): () => ExpressApp {
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.use(express.static(path.join(__dirname, "public")));
-    app.use(helmet());
+    app.use(helmet({}));
     app.use(morgan("combined"));
 
     routes(app);
