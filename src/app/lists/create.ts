@@ -1,5 +1,5 @@
 import type { decider } from "@/event-sourcing";
-import type { list } from "@/usecases";
+import { list } from "@/usecases";
 import type { Request, Response } from "express";
 
 export const create =
