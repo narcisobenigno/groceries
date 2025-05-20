@@ -1,12 +1,11 @@
 import type { decider } from "@/event-sourcing";
 import type { list } from "@/usecases";
 import type { Request, Response } from "express";
-import { ulid } from "ulid";
 
 export const create =
   (execute: decider.ExecuteCommand<list.CreateCommand, list.ListEvent>) =>
   async (request: Request, response: Response) => {
-    const id = `list_${ulid()}` as const;
+    const id = list.newId();
 
     await execute([id], {
       type: "list.create",
