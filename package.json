@@ -25,6 +25,7 @@
     "@testcontainers/postgresql": "^10.24.2",
     "@types/ejs": "^3.1.5",
     "@types/express": "^5.0.1",
+    "@types/express-ejs-layouts": "^2.5.4",
     "@types/jest": "^29.5.14",
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.14.1",

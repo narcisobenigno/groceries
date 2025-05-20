@@ -11,7 +11,7 @@ export function change(execute: decider.ExecuteCommand<list.ChangeNameCommand, l
       id,
       newName: request.body.name,
     }).then(() => {
-      response.redirect("/products");
+      response.redirect(`/lists/${id}`);
     });
   };
 }

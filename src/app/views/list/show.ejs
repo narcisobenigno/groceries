@@ -1,0 +1,21 @@
+<article>
+  <header>
+    <h1><%= list.name %></h1>
+  </header>
+  <div class="grid">
+    <div>
+      <form action="/lists/<%= list.id %>/change" method="POST">
+        <label for="name">List Name</label>
+        <input type="text" id="name" name="name" value="<%= list.name %>" required>
+        <button type="submit">Update Name</button>
+      </form>
+    </div>
+  </div>
+  <footer>
+    <div class="grid">
+      <div>
+        <a href="/" role="button" class="secondary outline">Back to Lists</a>
+      </div>
+    </div>
+  </footer>
+</article>

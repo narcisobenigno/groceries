@@ -24,6 +24,16 @@ export const createApp = configure((app) => {
       decider.Persisted<list.CreateCommand, list.CreateState, list.ListEvent>(list.Create(), listEventStore),
     ),
   );
+  app.get("/lists/:id", lists.show(list.InMemoryProjection(listEventStore)));
+  app.post(
+    "/lists/:id/change",
+    lists.change(
+      decider.Persisted<list.ChangeNameCommand, list.ChangeNameState, list.ListEvent>(
+        list.ChangeName(),
+        listEventStore,
+      ),
+    ),
+  );
 
   app.get("/products", products.form(product.InMemoryProjection(eventStore)));
   app.post(

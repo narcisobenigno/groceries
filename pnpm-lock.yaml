@@ -48,6 +48,9 @@ importers:
       '@types/express':
         specifier: ^5.0.1
         version: 5.0.1
+      '@types/express-ejs-layouts':
+        specifier: ^2.5.4
+        version: 2.5.4
       '@types/jest':
         specifier: ^29.5.14
         version: 29.5.14
@@ -655,6 +658,9 @@ packages:
 
   '@types/ejs@3.1.5':
     resolution: {integrity: sha512-nv+GSx77ZtXiJzwKdsASqi+YQ5Z7vwHsTP0JY2SiQgjGckkBRKZnk8nIM+7oUZ1VCtuTz0+By4qVR7fqzp/Dfg==}
+
+  '@types/express-ejs-layouts@2.5.4':
+    resolution: {integrity: sha512-d093IgtrNO3fD5Xm4+zh5F4E4sTxUsMbfYm7Vx40QdQ1qYTn4NIRCmatU8kqGRt09ojf3KKigtEehUeQUCE4fA==}
 
   '@types/express-serve-static-core@5.0.6':
     resolution: {integrity: sha512-3xhRnjJPkULekpSzgtoNYYcTWgEZkp4myc+Saevii5JPnHNvHMRlBSHDbs7Bh1iPPoVTERHEZXyhyLbMEsExsA==}
@@ -2910,6 +2916,11 @@ snapshots:
       '@types/ssh2': 1.15.5
 
   '@types/ejs@3.1.5': {}
+
+  '@types/express-ejs-layouts@2.5.4':
+    dependencies:
+      '@types/express': 5.0.1
+      '@types/node': 22.14.1
 
   '@types/express-serve-static-core@5.0.6':
     dependencies:
