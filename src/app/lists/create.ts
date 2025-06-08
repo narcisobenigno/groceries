@@ -6,14 +6,26 @@ export const create =
   (execute: decider.ExecuteCommand<list.CreateCommand, list.ListEvent>) =>
   async (request: Request, response: Response) => {
     const id = list.newId();
-
+    const name = request.body.name;
     await execute([id], {
       type: "list.create",
-      id: id,
-      name: request.body.name,
+      id,
+      name,
     })
       .then(() => {
-        response.redirect(`/lists/${id}`);
+        response.setHeader("Content-Type", "text/vnd.turbo-stream.html");
+        response.send(`
+            <turbo-stream action="append" target="lists-items">
+            <template>
+            <tr id="item-${id}">
+                <td>${name}</td>
+                <td>
+                    <a href="/lists/${id}">Edit</a>
+                </td>
+            </tr>
+            </template>
+            </turbo-stream>
+        `);
       })
       .catch((error) => {
         console.error("Error adding list:", error);

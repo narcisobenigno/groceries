@@ -5,9 +5,9 @@
 			<th>Actions</th>
 		</tr>
 	</thead>
-	<tbody>
+	<tbody id="lists-items">
 		<% products.forEach(({name, id}) => { %>
-			<tr>
+			<tr id="list-<%= id %>" >
 				<td><%= name %></td>
 				<td>
 					<a href="/lists/<%= id %>">Edit</a>
