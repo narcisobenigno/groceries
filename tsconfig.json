@@ -1,19 +1,15 @@
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
+  "extends": "./tsconfig.base.json",
+  "files": [],
+  "references": [
+    {
+      "path": "./oss/event-sourcing"
+    },
+    {
+      "path": "./packages/domain-events"
+    },
+    {
+      "path": "./packages/app"
     }
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules"]
+  ]
 }

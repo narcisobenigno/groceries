@@ -36,6 +36,14 @@
     }
   },
   "files": {
-    "ignore": ["node_modules", "dist", "coverage", "src/app/public/css/pico.*", "src/app/public/js"]
+    "ignore": [
+      "node_modules",
+      "dist",
+      "coverage",
+      "src/app/public/css/pico.*",
+      "src/app/public/js",
+      "**/public/css/pico.*",
+      "**/public/js"
+    ]
   }
 }

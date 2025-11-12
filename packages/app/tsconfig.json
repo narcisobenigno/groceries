@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "../../dist/packages/app",
+    "rootDir": "./src",
+    "tsBuildInfoFile": "../../dist/packages/app/.tsbuildinfo"
+  },
+  "include": ["src/**/*"],
+  "references": [
+    {
+      "path": "../../oss/event-sourcing"
+    },
+    {
+      "path": "../domain-events"
+    }
+  ]
+}

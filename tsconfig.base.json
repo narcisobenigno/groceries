@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "paths": {
+      "@groceries/event-sourcing": ["oss/event-sourcing/src/index.ts"],
+      "@groceries/event-sourcing/*": ["oss/event-sourcing/src/*"],
+      "@groceries/domain-events": ["packages/domain-events/src/index.ts"],
+      "@groceries/domain-events/*": ["packages/domain-events/src/*"],
+      "@groceries/app": ["packages/app/src/index.ts"],
+      "@groceries/app/*": ["packages/app/src/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist"]
+}

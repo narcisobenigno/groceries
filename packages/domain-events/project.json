@@ -1,0 +1,25 @@
+{
+  "name": "@groceries/domain-events",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/domain-events/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "command": "biome lint packages/domain-events/src --write"
+    },
+    "format": {
+      "command": "biome format packages/domain-events/src --write"
+    },
+    "check": {
+      "command": "biome check packages/domain-events/src"
+    },
+    "ci": {
+      "command": "biome ci packages/domain-events/src"
+    },
+    "build": {
+      "command": "tsc -p packages/domain-events/tsconfig.json",
+      "dependsOn": [],
+      "outputs": ["{workspaceRoot}/dist/packages/domain-events"]
+    }
+  }
+}

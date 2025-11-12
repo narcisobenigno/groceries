@@ -1,0 +1,36 @@
+{
+  "name": "@groceries/app",
+  "version": "1.0.0",
+  "description": "Groceries web application",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "cd src && tsx watch index.ts",
+    "build": "tsc && vite build",
+    "start": "NODE_ENV=production cd src && tsx index.ts",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@groceries/domain-events": "workspace:*",
+    "@groceries/event-sourcing": "workspace:*",
+    "ejs": "*",
+    "express": "*",
+    "express-ejs-layouts": "*",
+    "helmet": "*",
+    "htmx.org": "*",
+    "morgan": "*",
+    "postgres": "*",
+    "zod": "*"
+  },
+  "devDependencies": {
+    "@types/ejs": "*",
+    "@types/express": "*",
+    "@types/express-ejs-layouts": "*",
+    "@types/morgan": "*",
+    "@types/node": "*",
+    "@vitejs/plugin-react": "*",
+    "tsx": "*",
+    "typescript": "*",
+    "vite": "*"
+  }
+}

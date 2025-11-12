@@ -1,0 +1,24 @@
+{
+  "name": "@groceries/event-sourcing",
+  "version": "1.0.0",
+  "description": "Event sourcing library for groceries application",
+  "type": "module",
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "dependencies": {
+    "async-mutex": "*",
+    "postgres": "*",
+    "ulid": "*",
+    "zod": "*"
+  },
+  "devDependencies": {
+    "@types/node": "*",
+    "@types/pg": "*",
+    "typescript": "*"
+  }
+}

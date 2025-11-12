@@ -1,0 +1,17 @@
+{
+  "name": "@groceries/domain-events",
+  "version": "1.0.0",
+  "description": "Domain events for groceries application",
+  "type": "module",
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "ulid": "*"
+  },
+  "devDependencies": {
+    "@types/node": "*",
+    "typescript": "*"
+  }
+}

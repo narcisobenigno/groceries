@@ -94,6 +94,105 @@ importers:
         specifier: ^6.3.5
         version: 6.3.5(@types/node@22.15.30)(tsx@4.19.4)(yaml@2.8.0)
 
+  oss/event-sourcing:
+    dependencies:
+      async-mutex:
+        specifier: '*'
+        version: 0.5.0
+      postgres:
+        specifier: '*'
+        version: 3.4.7
+      ulid:
+        specifier: '*'
+        version: 3.0.0
+      zod:
+        specifier: '*'
+        version: 3.25.56
+    devDependencies:
+      '@types/node':
+        specifier: '*'
+        version: 22.15.30
+      '@types/pg':
+        specifier: '*'
+        version: 8.15.4
+      typescript:
+        specifier: '*'
+        version: 5.8.3
+
+  packages/app:
+    dependencies:
+      '@groceries/domain-events':
+        specifier: workspace:*
+        version: link:../domain-events
+      '@groceries/event-sourcing':
+        specifier: workspace:*
+        version: link:../../oss/event-sourcing
+      ejs:
+        specifier: '*'
+        version: 3.1.10
+      express:
+        specifier: '*'
+        version: 5.1.0
+      express-ejs-layouts:
+        specifier: '*'
+        version: 2.5.1
+      helmet:
+        specifier: '*'
+        version: 8.1.0
+      htmx.org:
+        specifier: '*'
+        version: 2.0.8
+      morgan:
+        specifier: '*'
+        version: 1.10.0
+      postgres:
+        specifier: '*'
+        version: 3.4.7
+      zod:
+        specifier: '*'
+        version: 3.25.56
+    devDependencies:
+      '@types/ejs':
+        specifier: '*'
+        version: 3.1.5
+      '@types/express':
+        specifier: '*'
+        version: 5.0.3
+      '@types/express-ejs-layouts':
+        specifier: '*'
+        version: 2.5.4
+      '@types/morgan':
+        specifier: '*'
+        version: 1.9.10
+      '@types/node':
+        specifier: '*'
+        version: 22.15.30
+      '@vitejs/plugin-react':
+        specifier: '*'
+        version: 4.5.1(vite@6.3.5(@types/node@22.15.30)(tsx@4.19.4)(yaml@2.8.0))
+      tsx:
+        specifier: '*'
+        version: 4.19.4
+      typescript:
+        specifier: '*'
+        version: 5.8.3
+      vite:
+        specifier: '*'
+        version: 6.3.5(@types/node@22.15.30)(tsx@4.19.4)(yaml@2.8.0)
+
+  packages/domain-events:
+    dependencies:
+      ulid:
+        specifier: '*'
+        version: 3.0.0
+    devDependencies:
+      '@types/node':
+        specifier: '*'
+        version: 22.15.30
+      typescript:
+        specifier: '*'
+        version: 5.8.3
+
 packages:
 
   '@ampproject/remapping@2.3.0':
