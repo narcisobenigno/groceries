@@ -1,0 +1,57 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "targetDefaults": {
+    "lint": {
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/**/*.{ts,tsx,js,jsx}",
+        "{projectRoot}/.biomerc.json",
+        "{workspaceRoot}/biome.json"
+      ]
+    },
+    "format": {
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/**/*.{ts,tsx,js,jsx,json,md}",
+        "{projectRoot}/.biomerc.json",
+        "{workspaceRoot}/biome.json"
+      ]
+    },
+    "check": {
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/**/*.{ts,tsx,js,jsx,json,md}",
+        "{projectRoot}/.biomerc.json",
+        "{workspaceRoot}/biome.json"
+      ]
+    },
+    "ci": {
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/**/*.{ts,tsx,js,jsx,json,md}",
+        "{projectRoot}/.biomerc.json",
+        "{workspaceRoot}/biome.json"
+      ]
+    },
+    "test": {
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/**/*.{ts,tsx,js,jsx}",
+        "{projectRoot}/**/*.test.{ts,tsx,js,jsx}",
+        "{projectRoot}/**/*.spec.{ts,tsx,js,jsx}",
+        "{workspaceRoot}/jest.config.js",
+        "{projectRoot}/jest.config.js",
+        "{workspaceRoot}/.env"
+      ],
+      "outputs": ["{workspaceRoot}/coverage"]
+    },
+    "prepare": {
+      "cache": true,
+      "inputs": [
+        "{workspaceRoot}/.husky/**/*",
+        "{workspaceRoot}/package.json"
+      ]
+    }
+  },
+  "defaultBase": "main"
+}

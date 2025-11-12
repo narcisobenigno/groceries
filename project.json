@@ -1,0 +1,26 @@
+{
+  "name": "groceries",
+  "$schema": "node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "src",
+  "projectType": "application",
+  "targets": {
+    "lint": {
+      "command": "biome lint src --write"
+    },
+    "format": {
+      "command": "biome format src --write"
+    },
+    "check": {
+      "command": "biome check src"
+    },
+    "ci": {
+      "command": "biome ci src"
+    },
+    "test": {
+      "command": "eval \"$(cat .env)\" && NODE_OPTIONS=--experimental-vm-modules NODE_NO_WARNINGS=1 jest"
+    },
+    "prepare": {
+      "command": "husky"
+    }
+  }
+}
