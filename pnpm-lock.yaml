@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@hotwired/turbo':
-        specifier: ^8.0.13
-        version: 8.0.13
       async-mutex:
         specifier: ^0.5.0
         version: 0.5.0
@@ -26,6 +23,9 @@ importers:
       helmet:
         specifier: ^8.1.0
         version: 8.1.0
+      htmx.org:
+        specifier: ^2.0.4
+        version: 2.0.8
       morgan:
         specifier: ^1.10.0
         version: 1.10.0
@@ -54,9 +54,6 @@ importers:
       '@types/express-ejs-layouts':
         specifier: ^2.5.4
         version: 2.5.4
-      '@types/hotwired__turbo':
-        specifier: ^8.0.4
-        version: 8.0.4
       '@types/jest':
         specifier: ^29.5.14
         version: 29.5.14
@@ -496,10 +493,6 @@ packages:
     engines: {node: '>=6'}
     hasBin: true
 
-  '@hotwired/turbo@8.0.13':
-    resolution: {integrity: sha512-M7qXUqcGab6G5PKOiwhgbByTtrPgKPFCTMNQ52QhzUEXEqmp0/ApEguUesh/FPiUjrmFec+3lq98KsWnYY2C7g==}
-    engines: {node: '>= 14'}
-
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
     engines: {node: '>=12'}
@@ -804,9 +797,6 @@ packages:
 
   '@types/graceful-fs@4.1.9':
     resolution: {integrity: sha512-olP3sd1qOEe5dXTSaFvQG+02VdRXcdytWLAZsAq1PecU8uqQAhkrnbli7DagjtXKW/Bl7YJbUsa8MPcuc8LHEQ==}
-
-  '@types/hotwired__turbo@8.0.4':
-    resolution: {integrity: sha512-kgEKOms0taywPxPQvXUh90+G7M+phBHTiUw95Dosw0FU/we86iFerMfgBGcf3eQcAGs5pTNYnLMhiIlfRw/AfA==}
 
   '@types/http-errors@2.0.5':
     resolution: {integrity: sha512-r8Tayk8HJnX0FztbZN7oVqGccWgw98T/0neJphO91KkmOzug1KkofZURD4UaD5uH8AqcFLfdPErnBod0u71/qg==}
@@ -1468,6 +1458,9 @@ packages:
 
   html-escaper@2.0.2:
     resolution: {integrity: sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==}
+
+  htmx.org@2.0.8:
+    resolution: {integrity: sha512-fm297iru0iWsNJlBrjvtN7V9zjaxd+69Oqjh4F/Vq9Wwi2kFisLcrLCiv5oBX0KLfOX/zG8AUo9ROMU5XUB44Q==}
 
   http-errors@2.0.0:
     resolution: {integrity: sha512-FtwrG/euBzaEjYeRqOgly7G0qviiXoJWnvEH2Z1plBdXgbyjv34pHTSb9zoeHMyDy33+DWy5Wt9Wo+TURtOYSQ==}
@@ -2842,8 +2835,6 @@ snapshots:
       protobufjs: 7.5.3
       yargs: 17.7.2
 
-  '@hotwired/turbo@8.0.13': {}
-
   '@isaacs/cliui@8.0.2':
     dependencies:
       string-width: 5.1.2
@@ -3233,8 +3224,6 @@ snapshots:
   '@types/graceful-fs@4.1.9':
     dependencies:
       '@types/node': 22.15.30
-
-  '@types/hotwired__turbo@8.0.4': {}
 
   '@types/http-errors@2.0.5': {}
 
@@ -3974,6 +3963,8 @@ snapshots:
   helmet@8.1.0: {}
 
   html-escaper@2.0.2: {}
+
+  htmx.org@2.0.8: {}
 
   http-errors@2.0.0:
     dependencies:

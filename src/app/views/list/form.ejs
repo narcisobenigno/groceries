@@ -1,4 +1,4 @@
-<form action="/lists" method="POST">
+<form action="/lists" method="POST" hx-post="/lists" hx-target="#lists-items" hx-swap="beforeend" hx-on::after-request="this.reset()">
 	<fieldset role="group">
 		<legend>Create List</legend>
 		<input type="text" id="name" name="name" placeholder="Name" aria-label="Name" required>

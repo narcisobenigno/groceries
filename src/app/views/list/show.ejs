@@ -4,7 +4,7 @@
   </header>
   <div class="grid">
     <div>
-      <form action="/lists/<%= list.id %>/change" method="POST">
+      <form action="/lists/<%= list.id %>/edit" method="POST" hx-post="/lists/<%= list.id %>/edit" hx-target="body" hx-swap="innerHTML">
         <label for="name">List Name</label>
         <input type="text" id="name" name="name" value="<%= list.name %>" required>
         <button type="submit">Update Name</button>
@@ -14,7 +14,7 @@
   <footer>
     <div class="grid">
       <div>
-        <a href="/" role="button" class="secondary outline">Back to Lists</a>
+        <a href="/" role="button" class="secondary outline" hx-boost="true">Back to Lists</a>
       </div>
     </div>
   </footer>

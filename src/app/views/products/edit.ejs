@@ -1,4 +1,4 @@
-<form action="/products/<%= edited.id %>/edit" method="POST">
+<form action="/products/<%= edited.id %>/edit" method="POST" hx-post="/products/<%= edited.id %>/edit" hx-target="body" hx-swap="innerHTML">
 	<fieldset role="group">
 		<legend>Change Product</legend>
 		<input type="text" id="name" name="name" placeholder="Name" aria-label="Name" value="<%= edited.name %>" required>

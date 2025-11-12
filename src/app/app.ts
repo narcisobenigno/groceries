@@ -73,10 +73,6 @@ function configure(routes: (_: ExpressApp) => void): () => ExpressApp {
     app.use(express.static(path.join(__dirname, "public")));
     app.use(helmet({}));
     app.use(morgan("combined"));
-    app.use((req, res, next) => {
-      res.locals.turbo = req.headers.turbo === "true";
-      next();
-    });
 
     routes(app);
 

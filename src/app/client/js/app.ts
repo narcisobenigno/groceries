@@ -1,9 +1,14 @@
-import * as Turbo from "@hotwired/turbo";
+import htmx from "htmx.org";
 
-const application = Turbo.start();
+// HTMX auto-initializes, no need to call start()
 
-document.addEventListener("turbo:load", () => {
-  console.log("Turbo loaded a new page");
+// Optional: Add event listeners for debugging
+document.addEventListener("htmx:afterSwap", (event) => {
+  console.log("HTMX swapped content", event);
 });
 
-export default application;
+document.addEventListener("htmx:afterRequest", (event) => {
+  console.log("HTMX completed request", event);
+});
+
+export default htmx;

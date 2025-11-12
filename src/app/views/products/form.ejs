@@ -1,4 +1,4 @@
-<form action="/products" method="POST">
+<form action="/products" method="POST" hx-post="/products" hx-target="body" hx-swap="innerHTML">
 	<fieldset role="group">
 		<legend>Add a product</legend>
 		<input type="text" id="name" name="name" placeholder="Name" aria-label="Name" required>

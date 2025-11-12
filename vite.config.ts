@@ -17,9 +17,4 @@ export default defineConfig({
       },
     },
   },
-  resolve: {
-    alias: {
-      "@hotwired/turbo": "./node_modules/@hotwired/turbo/dist/turbo.es2017-esm.js",
-    },
-  },
 });

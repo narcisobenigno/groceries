@@ -13,18 +13,14 @@ export const create =
       name,
     })
       .then(() => {
-        response.setHeader("Content-Type", "text/vnd.turbo-stream.html");
+        response.setHeader("Content-Type", "text/html");
         response.send(`
-            <turbo-stream action="append" target="lists-items">
-            <template>
             <tr id="item-${id}">
                 <td>${name}</td>
                 <td>
                     <a href="/lists/${id}">Edit</a>
                 </td>
             </tr>
-            </template>
-            </turbo-stream>
         `);
       })
       .catch((error) => {
