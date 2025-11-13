@@ -3,13 +3,16 @@ packages:
   - 'packages/*'
   - 'apps/*'
 
-catalog:
-  # Shared production dependencies (used by 2+ packages)
-  postgres: ^3.4.7
-  ulid: ^3.0.0
-  zod: ^3.25.56
-
 catalogs:
+  postgres:
+    postgres: ^3.4.7
+
+  ulid:
+    ulid: ^3.0.0
+
+  zod:
+    zod: ^3.25.56
+
   testing:
     '@types/jest': ^29.5.14
     jest: ^29.7.0

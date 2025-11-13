@@ -8,7 +8,7 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "ulid": "catalog:"
+    "ulid": "catalog:ulid"
   },
   "devDependencies": {
     "@types/node": "catalog:building",

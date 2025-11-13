@@ -21,16 +21,10 @@ catalogs:
     typescript:
       specifier: ^5.8.3
       version: 5.8.3
-  default:
+  postgres:
     postgres:
       specifier: ^3.4.7
       version: 3.4.7
-    ulid:
-      specifier: ^3.0.0
-      version: 3.0.0
-    zod:
-      specifier: ^3.25.56
-      version: 3.25.56
   testing:
     '@types/jest':
       specifier: ^29.5.14
@@ -41,6 +35,14 @@ catalogs:
     ts-jest:
       specifier: ^29.3.4
       version: 29.3.4
+  ulid:
+    ulid:
+      specifier: ^3.0.0
+      version: 3.0.0
+  zod:
+    zod:
+      specifier: ^3.25.56
+      version: 3.25.56
 
 importers:
 
@@ -98,10 +100,10 @@ importers:
         specifier: ^1.10.0
         version: 1.10.0
       postgres:
-        specifier: 'catalog:'
+        specifier: catalog:postgres
         version: 3.4.7
       zod:
-        specifier: 'catalog:'
+        specifier: catalog:zod
         version: 3.25.56
     devDependencies:
       '@types/ejs':
@@ -138,13 +140,13 @@ importers:
         specifier: ^0.5.0
         version: 0.5.0
       postgres:
-        specifier: 'catalog:'
+        specifier: catalog:postgres
         version: 3.4.7
       ulid:
-        specifier: 'catalog:'
+        specifier: catalog:ulid
         version: 3.0.0
       zod:
-        specifier: 'catalog:'
+        specifier: catalog:zod
         version: 3.25.56
     devDependencies:
       '@testcontainers/postgresql':
@@ -166,7 +168,7 @@ importers:
   packages/domain-events:
     dependencies:
       ulid:
-        specifier: 'catalog:'
+        specifier: catalog:ulid
         version: 3.0.0
     devDependencies:
       '@types/node':
