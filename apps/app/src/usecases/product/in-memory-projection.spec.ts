@@ -1,6 +1,8 @@
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
 import { eventstore } from "@groceries/event-sourcing";
 import type { product } from "..";
-import { InMemoryProjection } from "./in-memory-projection";
+import { InMemoryProjection, ProductNotFoundError } from "./in-memory-projection";
 
 describe("InMemoryProjector", () => {
   describe("all", () => {
@@ -33,7 +35,8 @@ describe("InMemoryProjector", () => {
 
       await projector.catchup();
 
-      await expect(projector.all()).resolves.toEqual([
+      const result = await projector.all();
+      assert.deepStrictEqual(result, [
         { id: "product_4321", name: "Product 4321" },
         { id: "product_1234", name: "Updated Product 1234" },
       ]);
@@ -57,7 +60,8 @@ describe("InMemoryProjector", () => {
       ]);
 
       await projector.catchup();
-      await expect(projector.all()).resolves.toEqual([
+      const firstResult = await projector.all();
+      assert.deepStrictEqual(firstResult, [
         { id: "product_1234", name: "Product 1234" },
         { id: "product_4321", name: "Product 4321" },
       ]);
@@ -76,7 +80,8 @@ describe("InMemoryProjector", () => {
       ]);
 
       await projector.catchup();
-      await expect(projector.all()).resolves.toEqual([
+      const secondResult = await projector.all();
+      assert.deepStrictEqual(secondResult, [
         { id: "product_4321", name: "Product 4321" },
         { id: "product_1234", name: "Updated Product 1234" },
       ]);
@@ -113,11 +118,14 @@ describe("InMemoryProjector", () => {
 
       await projector.catchup();
 
-      await expect(projector.byId("product_1234")).resolves.toEqual({
+      const result1 = await projector.byId("product_1234");
+      assert.deepStrictEqual(result1, {
         id: "product_1234",
         name: "Updated Product 1234",
       });
-      await expect(projector.byId("product_4321")).resolves.toEqual({
+
+      const result2 = await projector.byId("product_4321");
+      assert.deepStrictEqual(result2, {
         id: "product_4321",
         name: "Product 4321",
       });
@@ -127,9 +135,7 @@ describe("InMemoryProjector", () => {
       const eventStore = new eventstore.InMemory<product.ProductEvent>();
       const projector = InMemoryProjection(eventStore);
 
-      await expect(projector.byId("product_notexists")).rejects.toThrow(
-        "Product with id 'product_notexists' not found",
-      );
+      await assert.rejects(projector.byId("product_notexists"), ProductNotFoundError);
     });
   });
 });

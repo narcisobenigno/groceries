@@ -1,3 +1,5 @@
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
 import type { PersistedEnvelope } from "@groceries/event-sourcing/event-store";
 import { ChangeName } from "./change-name";
 import type { ListEvent } from "./event";
@@ -16,16 +18,15 @@ describe("change name", () => {
       },
     ];
 
-    await expect(
-      changeName.decide(
-        {
-          type: "list.change-name",
-          id: "list_123",
-          newName: "New Test List",
-        },
-        setupEvents.reduce(changeName.evolve, changeName.intialState()),
-      ),
-    ).resolves.toEqual([
+    const result = await changeName.decide(
+      {
+        type: "list.change-name",
+        id: "list_123",
+        newName: "New Test List",
+      },
+      setupEvents.reduce(changeName.evolve, changeName.intialState()),
+    );
+    assert.deepStrictEqual(result, [
       {
         streamId: ["list_123"],
         type: "list.name-changed",
@@ -68,16 +69,15 @@ describe("change name", () => {
       },
     ];
 
-    await expect(
-      changeName.decide(
-        {
-          type: "list.change-name",
-          id: "list_123",
-          newName: "Newest Test Product",
-        },
-        setupEvents.reduce(changeName.evolve, changeName.intialState()),
-      ),
-    ).resolves.toEqual([
+    const result = await changeName.decide(
+      {
+        type: "list.change-name",
+        id: "list_123",
+        newName: "Newest Test Product",
+      },
+      setupEvents.reduce(changeName.evolve, changeName.intialState()),
+    );
+    assert.deepStrictEqual(result, [
       {
         streamId: ["list_123"],
         type: "list.name-changed",
@@ -94,7 +94,7 @@ describe("change name", () => {
   it("does not change name when product does not exist", async () => {
     const changeName = ChangeName();
 
-    await expect(
+    await assert.rejects(
       changeName.decide(
         {
           type: "list.change-name",
@@ -103,7 +103,8 @@ describe("change name", () => {
         },
         changeName.intialState(),
       ),
-    ).rejects.toEqual(new Error("Product with id list_123 does not exist"));
+      new Error("Product with id list_123 does not exist"),
+    );
   });
 
   it("does not change name when new name is the same", async () => {
@@ -119,11 +120,10 @@ describe("change name", () => {
       },
     ];
 
-    await expect(
-      changeName.decide(
-        { type: "list.change-name", id: "list_123", newName: "Test Product" },
-        setupEvents.reduce(changeName.evolve, changeName.intialState()),
-      ),
-    ).resolves.toEqual([]);
+    const result = await changeName.decide(
+      { type: "list.change-name", id: "list_123", newName: "Test Product" },
+      setupEvents.reduce(changeName.evolve, changeName.intialState()),
+    );
+    assert.deepStrictEqual(result, []);
   });
 });

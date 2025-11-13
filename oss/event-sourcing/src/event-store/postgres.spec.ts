@@ -1,3 +1,4 @@
+import { after, afterEach, before, beforeEach, describe } from "node:test";
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 import postgres, { type Sql } from "postgres";
 import { Wait } from "testcontainers";
@@ -10,26 +11,34 @@ describe("PostgresEventStore", () => {
   let sql: Sql;
   let schemaName: string;
 
-  beforeAll(async () => {
-    container = await new PostgreSqlContainer("postgres:17-alpine").withWaitStrategy(Wait.forListeningPorts()).start();
-  });
-  afterAll(async () => {
+  before(
+    async () => {
+      container = await new PostgreSqlContainer("postgres:17-alpine")
+        .withWaitStrategy(Wait.forListeningPorts())
+        .start();
+    },
+    { timeout: 120_000 },
+  );
+  after(async () => {
     await container.stop();
   });
 
-  beforeEach(async () => {
-    sql = postgres(container.getConnectionUri(), {
-      types: {
-        bigint: {
-          to: 20,
-          from: [20],
-          serialize: (x: bigint) => x.toString(),
-          parse: (x: string) => BigInt(x),
+  beforeEach(
+    async () => {
+      sql = postgres(container.getConnectionUri(), {
+        types: {
+          bigint: {
+            to: 20,
+            from: [20],
+            serialize: (x: bigint) => x.toString(),
+            parse: (x: string) => BigInt(x),
+          },
         },
-      },
-    });
-    schemaName = `events${Math.floor(Math.random() * 100000)}`;
-  }, 120_000);
+      });
+      schemaName = `events${Math.floor(Math.random() * 100000)}`;
+    },
+    { timeout: 120_000 },
+  );
   afterEach(async () => {
     await sql.end();
   });

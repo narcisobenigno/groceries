@@ -1,3 +1,5 @@
+import assert from "node:assert/strict";
+import { after, afterEach, before, beforeEach, describe, it } from "node:test";
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 import postgres, { type Sql } from "postgres";
 import { Wait } from "testcontainers";
@@ -9,10 +11,15 @@ describe("PostgresProjector", () => {
   let sql: Sql;
   let schemaName: string;
 
-  beforeAll(async () => {
-    container = await new PostgreSqlContainer("postgres:17-alpine").withWaitStrategy(Wait.forListeningPorts()).start();
-  }, 120_000);
-  afterAll(async () => {
+  before(
+    async () => {
+      container = await new PostgreSqlContainer("postgres:17-alpine")
+        .withWaitStrategy(Wait.forListeningPorts())
+        .start();
+    },
+    { timeout: 120_000 },
+  );
+  after(async () => {
     await container.stop();
   });
 
@@ -55,7 +62,7 @@ describe("PostgresProjector", () => {
     await projector.start();
 
     const projections = await read(sql, schemaName);
-    expect(projections).toEqual([
+    assert.deepStrictEqual(Array.from(projections), [
       { numberId: "stream_123", value: 3 },
       { numberId: "stream_4321", value: 4 },
     ]);
@@ -93,7 +100,7 @@ describe("PostgresProjector", () => {
     await projector.start();
 
     const projections = await read(sql, schemaName);
-    expect(projections).toEqual([{ numberId: "stream_123", value: 3 }]);
+    assert.deepStrictEqual(Array.from(projections), [{ numberId: "stream_123", value: 3 }]);
   });
 
   it("projects from where it left off", async () => {
@@ -129,7 +136,7 @@ describe("PostgresProjector", () => {
     await projector.start();
 
     const projections = await read(sql, schemaName);
-    expect(projections).toEqual([
+    assert.deepStrictEqual(Array.from(projections), [
       { numberId: "stream_123", value: 3 },
       { numberId: "stream_4321", value: 4 },
     ]);
@@ -160,7 +167,7 @@ describe("PostgresProjector", () => {
     ]);
 
     const projected = await projector.start();
-    expect(projected).toBe(true);
+    assert.strictEqual(projected, true);
   });
 
   it("returns false when events projected less than limit", async () => {
@@ -183,7 +190,7 @@ describe("PostgresProjector", () => {
     ]);
 
     const projected = await projector.start();
-    expect(projected).toBe(false);
+    assert.strictEqual(projected, false);
   });
 });
 

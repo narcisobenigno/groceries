@@ -6,9 +6,9 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "cd src && tsx watch index.ts",
-    "build": "tsc && vite build",
-    "start": "NODE_ENV=production cd src && tsx index.ts",
-    "test": "jest"
+    "build": "tsc && esbuild src/client/js/app.ts --bundle --outdir=src/public/js --format=esm --sourcemap",
+    "start": "NODE_ENV=production node dist/apps/app/src/index.js",
+    "test": "node --import tsx --test 'src/**/*.spec.ts'"
   },
   "dependencies": {
     "@groceries/domain-events": "workspace:*",
@@ -20,6 +20,7 @@
     "htmx.org": "^2.0.4",
     "morgan": "^1.10.0",
     "postgres": "catalog:postgres",
+    "ulid": "catalog:ulid",
     "zod": "catalog:zod"
   },
   "devDependencies": {
@@ -28,9 +29,8 @@
     "@types/express-ejs-layouts": "^2.5.4",
     "@types/morgan": "^1.9.10",
     "@types/node": "catalog:building",
-    "@vitejs/plugin-react": "^4.5.1",
+    "esbuild": "^0.24.0",
     "tsx": "^4.19.4",
-    "typescript": "catalog:building",
-    "vite": "^6.3.5"
+    "typescript": "catalog:building"
   }
 }

@@ -1,6 +1,8 @@
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
 import { eventstore } from "@groceries/event-sourcing";
 import type { list } from "..";
-import { InMemoryProjection } from "./in-memory-projection";
+import { InMemoryProjection, ListNotFoundError } from "./in-memory-projection";
 
 describe("InMemoryProjector", () => {
   describe("all", () => {
@@ -33,7 +35,8 @@ describe("InMemoryProjector", () => {
 
       await projector.catchup();
 
-      await expect(projector.all()).resolves.toEqual([
+      const result = await projector.all();
+      assert.deepStrictEqual(result, [
         { id: "list_4321", name: "List 4321" },
         { id: "list_1234", name: "Updated List 1234" },
       ]);
@@ -57,7 +60,8 @@ describe("InMemoryProjector", () => {
       ]);
 
       await projector.catchup();
-      await expect(projector.all()).resolves.toEqual([
+      const firstResult = await projector.all();
+      assert.deepStrictEqual(firstResult, [
         { id: "list_1234", name: "List 1234" },
         { id: "list_4321", name: "List 4321" },
       ]);
@@ -76,7 +80,8 @@ describe("InMemoryProjector", () => {
       ]);
 
       await projector.catchup();
-      await expect(projector.all()).resolves.toEqual([
+      const secondResult = await projector.all();
+      assert.deepStrictEqual(secondResult, [
         { id: "list_4321", name: "List 4321" },
         { id: "list_1234", name: "Updated List 1234" },
       ]);
@@ -113,11 +118,14 @@ describe("InMemoryProjector", () => {
 
       await projector.catchup();
 
-      await expect(projector.byId("list_1234")).resolves.toEqual({
+      const result1 = await projector.byId("list_1234");
+      assert.deepStrictEqual(result1, {
         id: "list_1234",
         name: "Updated List 1234",
       });
-      await expect(projector.byId("list_4321")).resolves.toEqual({
+
+      const result2 = await projector.byId("list_4321");
+      assert.deepStrictEqual(result2, {
         id: "list_4321",
         name: "List 4321",
       });
@@ -127,7 +135,7 @@ describe("InMemoryProjector", () => {
       const eventStore = new eventstore.InMemory<list.ListEvent>();
       const projector = InMemoryProjection(eventStore);
 
-      await expect(projector.byId("list_notexists")).rejects.toThrow("List with id 'list_notexists' not found");
+      await assert.rejects(projector.byId("list_notexists"), ListNotFoundError);
     });
   });
 });

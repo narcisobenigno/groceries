@@ -19,12 +19,9 @@
   "packageManager": "pnpm@10.8.0",
   "devDependencies": {
     "@biomejs/biome": "catalog:building",
-    "@types/jest": "catalog:testing",
     "@types/node": "catalog:building",
     "husky": "catalog:building",
-    "jest": "catalog:testing",
     "nx": "catalog:building",
-    "ts-jest": "catalog:testing",
     "typescript": "catalog:building"
   }
 }

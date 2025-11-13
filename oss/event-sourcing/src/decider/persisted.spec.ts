@@ -1,3 +1,5 @@
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
 import * as eventstore from "../event-store";
 import type { Decider, State } from "./decider";
 import { Persisted } from "./persisted";
@@ -13,7 +15,8 @@ describe("Persisted Decider", () => {
       id: "1",
       value: 1,
     };
-    await expect(run(["1"], command)).resolves.toMatchObject([
+    const result = await run(["1"], command);
+    assert.deepStrictEqual(result, [
       {
         streamId: ["1"],
         type: "created",
@@ -23,9 +26,11 @@ describe("Persisted Decider", () => {
           id: "1",
           value: 1,
         },
+        timestamp: result[0].timestamp,
       },
     ]);
-    await expect(eventStore.read({ streamIds: ["1"] })).resolves.toMatchObject([
+    const events = await eventStore.read({ streamIds: ["1"] });
+    assert.deepStrictEqual(events, [
       {
         streamId: ["1"],
         type: "created",
@@ -35,6 +40,7 @@ describe("Persisted Decider", () => {
           id: "1",
           value: 1,
         },
+        timestamp: events[0].timestamp,
       },
     ]);
   });
@@ -60,8 +66,10 @@ describe("Persisted Decider", () => {
       id: "1",
       value: 1,
     };
-    await expect(run(["1"], command)).resolves.toMatchObject([]);
-    await expect(eventStore.read({ streamIds: ["1"], offset: 1n })).resolves.toMatchObject([]);
+    const result = await run(["1"], command);
+    assert.deepStrictEqual(result, []);
+    const events = await eventStore.read({ streamIds: ["1"], offset: 1n });
+    assert.deepStrictEqual(events, []);
   });
 
   it("only one of the concurrent command gets saved for new streams", async () => {
@@ -80,8 +88,8 @@ describe("Persisted Decider", () => {
       ),
     );
 
-    expect(result.filter((r) => r instanceof Error)).toHaveLength(4);
-    expect(result.filter((r) => Array.isArray(r))).toHaveLength(1);
+    assert.strictEqual(result.filter((r) => r instanceof Error).length, 4);
+    assert.strictEqual(result.filter((r) => Array.isArray(r)).length, 1);
   });
 
   it("only one of the concurrent command gets saved for existing streams", async () => {
@@ -112,8 +120,8 @@ describe("Persisted Decider", () => {
       ),
     );
 
-    expect(result.filter((r) => r instanceof Error)).toHaveLength(4);
-    expect(result.filter((r) => Array.isArray(r))).toHaveLength(1);
+    assert.strictEqual(result.filter((r) => r instanceof Error).length, 4);
+    assert.strictEqual(result.filter((r) => Array.isArray(r)).length, 1);
   });
 });
 
