@@ -29,7 +29,7 @@
     "@types/express-ejs-layouts": "^2.5.4",
     "@types/morgan": "^1.9.10",
     "@types/node": "catalog:building",
-    "esbuild": "^0.24.0",
+    "esbuild": "^0.25.0",
     "tsx": "^4.19.4",
     "typescript": "catalog:building"
   }
