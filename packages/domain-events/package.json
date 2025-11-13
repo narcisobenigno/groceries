@@ -8,10 +8,10 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "ulid": "*"
+    "ulid": "catalog:"
   },
   "devDependencies": {
-    "@types/node": "*",
-    "typescript": "*"
+    "@types/node": "catalog:building",
+    "typescript": "catalog:building"
   }
 }

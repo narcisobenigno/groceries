@@ -11,14 +11,16 @@
     "test": "jest"
   },
   "dependencies": {
-    "async-mutex": "*",
-    "postgres": "*",
-    "ulid": "*",
-    "zod": "*"
+    "async-mutex": "^0.5.0",
+    "postgres": "catalog:",
+    "ulid": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "@types/node": "*",
-    "@types/pg": "*",
-    "typescript": "*"
+    "@testcontainers/postgresql": "^10.28.0",
+    "@types/node": "catalog:building",
+    "@types/pg": "^8.15.4",
+    "testcontainers": "^10.28.0",
+    "typescript": "catalog:building"
   }
 }

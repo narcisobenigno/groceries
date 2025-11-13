@@ -13,24 +13,24 @@
   "dependencies": {
     "@groceries/domain-events": "workspace:*",
     "@groceries/event-sourcing": "workspace:*",
-    "ejs": "*",
-    "express": "*",
-    "express-ejs-layouts": "*",
-    "helmet": "*",
-    "htmx.org": "*",
-    "morgan": "*",
-    "postgres": "*",
-    "zod": "*"
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-ejs-layouts": "^2.5.1",
+    "helmet": "^8.1.0",
+    "htmx.org": "^2.0.4",
+    "morgan": "^1.10.0",
+    "postgres": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "@types/ejs": "*",
-    "@types/express": "*",
-    "@types/express-ejs-layouts": "*",
-    "@types/morgan": "*",
-    "@types/node": "*",
-    "@vitejs/plugin-react": "*",
-    "tsx": "*",
-    "typescript": "*",
-    "vite": "*"
+    "@types/ejs": "^3.1.5",
+    "@types/express": "^5.0.3",
+    "@types/express-ejs-layouts": "^2.5.4",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "catalog:building",
+    "@vitejs/plugin-react": "^4.5.1",
+    "tsx": "^4.19.4",
+    "typescript": "catalog:building",
+    "vite": "^6.3.5"
   }
 }
