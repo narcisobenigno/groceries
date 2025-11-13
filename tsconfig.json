@@ -9,7 +9,7 @@
       "path": "./packages/domain-events"
     },
     {
-      "path": "./packages/app"
+      "path": "./apps/app"
     }
   ]
 }

@@ -94,36 +94,11 @@ importers:
         specifier: ^6.3.5
         version: 6.3.5(@types/node@22.15.30)(tsx@4.19.4)(yaml@2.8.0)
 
-  oss/event-sourcing:
-    dependencies:
-      async-mutex:
-        specifier: '*'
-        version: 0.5.0
-      postgres:
-        specifier: '*'
-        version: 3.4.7
-      ulid:
-        specifier: '*'
-        version: 3.0.0
-      zod:
-        specifier: '*'
-        version: 3.25.56
-    devDependencies:
-      '@types/node':
-        specifier: '*'
-        version: 22.15.30
-      '@types/pg':
-        specifier: '*'
-        version: 8.15.4
-      typescript:
-        specifier: '*'
-        version: 5.8.3
-
-  packages/app:
+  apps/app:
     dependencies:
       '@groceries/domain-events':
         specifier: workspace:*
-        version: link:../domain-events
+        version: link:../../packages/domain-events
       '@groceries/event-sourcing':
         specifier: workspace:*
         version: link:../../oss/event-sourcing
@@ -179,6 +154,31 @@ importers:
       vite:
         specifier: '*'
         version: 6.3.5(@types/node@22.15.30)(tsx@4.19.4)(yaml@2.8.0)
+
+  oss/event-sourcing:
+    dependencies:
+      async-mutex:
+        specifier: '*'
+        version: 0.5.0
+      postgres:
+        specifier: '*'
+        version: 3.4.7
+      ulid:
+        specifier: '*'
+        version: 3.0.0
+      zod:
+        specifier: '*'
+        version: 3.25.56
+    devDependencies:
+      '@types/node':
+        specifier: '*'
+        version: 22.15.30
+      '@types/pg':
+        specifier: '*'
+        version: 8.15.4
+      typescript:
+        specifier: '*'
+        version: 5.8.3
 
   packages/domain-events:
     dependencies:

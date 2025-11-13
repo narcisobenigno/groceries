@@ -17,8 +17,8 @@
       "@groceries/event-sourcing/*": ["oss/event-sourcing/src/*"],
       "@groceries/domain-events": ["packages/domain-events/src/index.ts"],
       "@groceries/domain-events/*": ["packages/domain-events/src/*"],
-      "@groceries/app": ["packages/app/src/index.ts"],
-      "@groceries/app/*": ["packages/app/src/*"]
+      "@groceries/app": ["apps/app/src/index.ts"],
+      "@groceries/app/*": ["apps/app/src/*"]
     }
   },
   "exclude": ["node_modules", "dist"]

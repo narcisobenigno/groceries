@@ -2,9 +2,9 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "composite": true,
-    "outDir": "../../dist/packages/app",
+    "outDir": "../../dist/apps/app",
     "rootDir": "./src",
-    "tsBuildInfoFile": "../../dist/packages/app/.tsbuildinfo"
+    "tsBuildInfoFile": "../../dist/apps/app/.tsbuildinfo"
   },
   "include": ["src/**/*"],
   "references": [
@@ -12,7 +12,7 @@
       "path": "../../oss/event-sourcing"
     },
     {
-      "path": "../domain-events"
+      "path": "../../packages/domain-events"
     }
   ]
 }
