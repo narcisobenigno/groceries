@@ -1,0 +1,56 @@
+# Dependencies
+node_modules
+**/node_modules
+
+# Build outputs
+dist
+**/dist
+.next
+*.tsbuildinfo
+
+# Development
+.git
+.gitignore
+*.md
+README.md
+
+# Tests
+**/*.spec.ts
+**/*.test.ts
+**/__tests__
+**/__mocks__
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files (should be set in Fly.io secrets)
+.env
+.env.local
+.env.*.local
+
+# Docker
+.dockerignore
+
+# CI/CD
+.github
+.gitlab-ci.yml
+
+# Coverage
+coverage
+.nyc_output

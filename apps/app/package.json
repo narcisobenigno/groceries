@@ -6,9 +6,17 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "cd src && tsx watch index.ts",
-    "build": "tsc && esbuild src/client/js/app.ts --bundle --outdir=src/public/js --format=esm --sourcemap",
-    "start": "NODE_ENV=production node dist/apps/app/src/index.js",
-    "test": "node --import tsx --test 'src/**/*.spec.ts'"
+    "build": "tsc --build && esbuild src/client/js/app.ts --bundle --outdir=src/public/js --format=esm --sourcemap",
+    "start": "NODE_ENV=production node ../../dist/apps/app/index.js",
+    "test": "node --import tsx --test 'src/**/*.spec.ts'",
+    "docker:build": "docker compose build",
+    "docker:up": "docker compose up",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "deploy": "cd ../.. && fly deploy --remote-only",
+    "deploy:launch": "cd ../.. && fly launch",
+    "logs": "cd ../.. && fly logs",
+    "ssh": "cd ../.. && fly ssh console"
   },
   "dependencies": {
     "@groceries/domain-events": "workspace:*",

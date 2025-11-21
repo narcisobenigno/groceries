@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm test:*)",
+      "Bash(docker info:*)",
+      "Bash(/dev/null)",
+      "Bash(docker context:*)",
+      "Bash(env)",
+      "Bash(DOCKER_HOST=unix:///Users/narciso/.colima/default/docker.sock pnpm test:*)",
+      "Bash(DOCKER_HOST=unix:///Users/narciso/.colima/default/docker.sock DEBUG=testcontainers* node:*)",
+      "Bash(DOCKER_HOST=\"unix:///Users/narciso/.colima/default/docker.sock\" node --import tsx --test:*)",
+      "Bash(DOCKER_HOST=\"unix:///Users/narciso/.colima/default/docker.sock\" pnpm --filter @groceries/event-sourcing test:*)",
+      "Bash(export DOCKER_HOST=unix:///Users/narciso/.colima/default/docker.sock)",
+      "Bash(pnpm --filter @groceries/event-sourcing test:*)",
+      "Bash(docker version:*)",
+      "Bash(direnv status:*)",
+      "Bash(direnv allow:*)",
+      "Bash(direnv reload:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

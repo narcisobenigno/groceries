@@ -14,6 +14,7 @@ describe("PostgresEventStore", () => {
   before(
     async () => {
       container = await new PostgreSqlContainer("postgres:17-alpine")
+        //.withWaitStrategy(Wait.forLogMessage("database system is ready to accept connections"))
         .withWaitStrategy(Wait.forListeningPorts())
         .start();
     },
