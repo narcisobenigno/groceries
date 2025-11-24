@@ -25,10 +25,10 @@
       "outputs": ["{workspaceRoot}/dist/apps/app"]
     },
     "dev": {
-      "command": "cd apps/app && pnpm dev"
+      "command": "cd apps/app && bun run dev"
     },
     "start": {
-      "command": "cd apps/app && pnpm start"
+      "command": "cd apps/app && bun run start"
     },
     "deploy": {
       "command": "fly deploy --config apps/app/fly.toml --remote-only"

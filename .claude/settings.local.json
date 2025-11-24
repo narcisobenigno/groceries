@@ -1,17 +1,17 @@
 {
   "permissions": {
     "allow": [
-      "Bash(pnpm test:*)",
+      "Bash(bun test:*)",
       "Bash(docker info:*)",
       "Bash(/dev/null)",
       "Bash(docker context:*)",
       "Bash(env)",
-      "Bash(DOCKER_HOST=unix:///Users/narciso/.colima/default/docker.sock pnpm test:*)",
+      "Bash(DOCKER_HOST=unix:///Users/narciso/.colima/default/docker.sock bun test:*)",
       "Bash(DOCKER_HOST=unix:///Users/narciso/.colima/default/docker.sock DEBUG=testcontainers* node:*)",
       "Bash(DOCKER_HOST=\"unix:///Users/narciso/.colima/default/docker.sock\" node --import tsx --test:*)",
-      "Bash(DOCKER_HOST=\"unix:///Users/narciso/.colima/default/docker.sock\" pnpm --filter @groceries/event-sourcing test:*)",
+      "Bash(DOCKER_HOST=\"unix:///Users/narciso/.colima/default/docker.sock\" bun --filter @groceries/event-sourcing test:*)",
       "Bash(export DOCKER_HOST=unix:///Users/narciso/.colima/default/docker.sock)",
-      "Bash(pnpm --filter @groceries/event-sourcing test:*)",
+      "Bash(bun --filter @groceries/event-sourcing test:*)",
       "Bash(docker version:*)",
       "Bash(direnv status:*)",
       "Bash(direnv allow:*)",

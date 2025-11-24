@@ -1,2 +1,2 @@
-pnpm check
-pnpm test
+bun run check
+bun test
