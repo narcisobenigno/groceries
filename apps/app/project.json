@@ -29,6 +29,30 @@
     },
     "start": {
       "command": "cd apps/app && pnpm start"
+    },
+    "deploy": {
+      "command": "fly deploy --config apps/app/fly.toml --remote-only"
+    },
+    "deploy:launch": {
+      "command": "fly launch --config apps/app/fly.toml"
+    },
+    "logs": {
+      "command": "fly logs --config apps/app/fly.toml"
+    },
+    "ssh": {
+      "command": "fly ssh console --config apps/app/fly.toml"
+    },
+    "docker:build": {
+      "command": "docker compose -f apps/app/docker-compose.yml build"
+    },
+    "docker:up": {
+      "command": "docker compose -f apps/app/docker-compose.yml up"
+    },
+    "docker:down": {
+      "command": "docker compose -f apps/app/docker-compose.yml down"
+    },
+    "docker:logs": {
+      "command": "docker compose -f apps/app/docker-compose.yml logs -f"
     }
   }
 }
