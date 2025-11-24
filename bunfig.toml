@@ -1,3 +1,7 @@
 [install]
 # Auto-install peer dependencies
 peer = true
+
+[test]
+# Exclude dist folders from test discovery
+exclude = ["dist/**", "**/node_modules/**", "**/dist/**"]

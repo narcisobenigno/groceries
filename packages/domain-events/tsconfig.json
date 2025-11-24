@@ -7,5 +7,6 @@
     "tsBuildInfoFile": "../../dist/packages/domain-events/.tsbuildinfo"
   },
   "include": ["src/**/*"],
+  "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts"],
   "references": []
 }

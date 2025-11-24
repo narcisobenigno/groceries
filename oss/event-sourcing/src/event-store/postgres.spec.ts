@@ -20,9 +20,14 @@ describe("PostgresEventStore", () => {
     },
     { timeout: 120_000 },
   );
-  after(async () => {
-    await container.stop();
-  });
+  after(
+    async () => {
+      if (container) {
+        await container.stop();
+      }
+    },
+    { timeout: 120_000 },
+  );
 
   beforeEach(
     async () => {
@@ -40,9 +45,12 @@ describe("PostgresEventStore", () => {
     },
     { timeout: 120_000 },
   );
-  afterEach(async () => {
-    await sql.end();
-  });
+  afterEach(
+    async () => {
+      await sql.end();
+    },
+    { timeout: 120_000 },
+  );
 
   eventStoreContractTest(async <E extends Event>(parse: ParseEvent<E>) => await Postgres<E>(schemaName, sql, parse));
 });

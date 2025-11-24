@@ -19,17 +19,25 @@ describe("PostgresProjector", () => {
     },
     { timeout: 120_000 },
   );
-  after(async () => {
-    await container.stop();
-  });
+  after(
+    async () => {
+      if (container) {
+        await container.stop();
+      }
+    },
+    { timeout: 120_000 },
+  );
 
   beforeEach(() => {
     sql = postgres(container.getConnectionUri());
     schemaName = `projector-${Math.floor(Math.random() * 100000)}`;
   });
-  afterEach(async () => {
-    await sql.end();
-  });
+  afterEach(
+    async () => {
+      await sql.end();
+    },
+    { timeout: 120_000 },
+  );
 
   it("projects events", async () => {
     const eventStore = new eventstore.InMemory<TestEvents>();
