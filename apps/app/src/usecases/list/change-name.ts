@@ -50,6 +50,6 @@ export function ChangeName(): Decider<ChangeNameCommand, ChangeNameState, ListEv
           return { ...state, oldName: { ...state.oldName, [event.event.id]: event.event.newName } };
       }
     },
-    intialState: () => ({ reducedEvents: new Set(["list.created", "list.name-changed"]), oldName: {} }),
+    initialState: () => ({ reducedEvents: new Set(["list.created", "list.name-changed"]), oldName: {} }),
   };
 }

@@ -8,7 +8,7 @@ describe("Create List", () => {
 
     const result = await addProduct.decide(
       { type: "list.create", id: "list_123", name: "Test List" },
-      addProduct.intialState(),
+      addProduct.initialState(),
     );
 
     assert.deepStrictEqual(result, [
@@ -25,7 +25,7 @@ describe("Create List", () => {
 
     const result = await addProduct.decide(
       { type: "list.create", id: "list_123", name: "Test List" },
-      addProduct.evolve(addProduct.intialState(), {
+      addProduct.evolve(addProduct.initialState(), {
         type: "list.created",
         streamId: ["list_123"],
         position: 1n,

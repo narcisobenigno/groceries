@@ -20,7 +20,7 @@ describe("change name", () => {
 
     const result = await changeName.decide(
       { type: "product.change-name", id: "product_123", newName: "New Test Product" },
-      setupEvents.reduce(changeName.evolve, changeName.intialState()),
+      setupEvents.reduce(changeName.evolve, changeName.initialState()),
     );
 
     assert.deepStrictEqual(result, [
@@ -64,7 +64,7 @@ describe("change name", () => {
 
     const result = await changeName.decide(
       { type: "product.change-name", id: "product_123", newName: "Newest Test Product" },
-      setupEvents.reduce(changeName.evolve, changeName.intialState()),
+      setupEvents.reduce(changeName.evolve, changeName.initialState()),
     );
 
     assert.deepStrictEqual(result, [
@@ -87,7 +87,7 @@ describe("change name", () => {
     await assert.rejects(
       changeName.decide(
         { type: "product.change-name", id: "product_123", newName: "New Test Product" },
-        changeName.intialState(),
+        changeName.initialState(),
       ),
       new Error("Product with id product_123 does not exist"),
     );
@@ -108,7 +108,7 @@ describe("change name", () => {
 
     const result = await changeName.decide(
       { type: "product.change-name", id: "product_123", newName: "Test Product" },
-      setupEvents.reduce(changeName.evolve, changeName.intialState()),
+      setupEvents.reduce(changeName.evolve, changeName.initialState()),
     );
 
     assert.deepStrictEqual(result, []);

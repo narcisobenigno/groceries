@@ -36,6 +36,6 @@ export function AddProduct(): Decider<AddProductCommand, AddProductState, Produc
     evolve: (state, event) => {
       return { ...state, [event.event.id]: true };
     },
-    intialState: () => ({ reducedEvents: new Set(["product.added"]) }),
+    initialState: () => ({ reducedEvents: new Set(["product.added"]) }),
   };
 }

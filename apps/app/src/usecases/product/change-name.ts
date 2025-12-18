@@ -50,6 +50,6 @@ export function ChangeName(): Decider<ChangeNameCommand, ChangeNameState, Produc
           return { ...state, oldName: { ...state.oldName, [event.event.id]: event.event.newName } };
       }
     },
-    intialState: () => ({ reducedEvents: new Set(["product.name-changed"]), oldName: {} }),
+    initialState: () => ({ reducedEvents: new Set(["product.name-changed"]), oldName: {} }),
   };
 }

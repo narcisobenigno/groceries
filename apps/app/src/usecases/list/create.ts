@@ -36,6 +36,6 @@ export function Create(): Decider<CreateCommand, CreateState, ListEvent> {
     evolve: (state, event) => {
       return { ...state, [event.event.id]: true };
     },
-    intialState: () => ({ reducedEvents: new Set(["list.created"]) }),
+    initialState: () => ({ reducedEvents: new Set(["list.created"]) }),
   };
 }
