@@ -16,13 +16,10 @@ export const add =
       .then(() => {
         const redirectUrl = "/products";
 
-        // Check if this is an HTMX request
         if (request.headers["hx-request"]) {
-          // For HTMX, use HX-Redirect header
           response.setHeader("HX-Redirect", redirectUrl);
           response.status(200).send();
         } else {
-          // For regular requests, use standard redirect
           response.redirect(redirectUrl);
         }
       })
