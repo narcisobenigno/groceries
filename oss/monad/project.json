@@ -1,0 +1,28 @@
+{
+  "name": "@groceries/monad",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "oss/monad/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "command": "biome lint oss/monad/src --write"
+    },
+    "format": {
+      "command": "biome format oss/monad/src --write"
+    },
+    "check": {
+      "command": "biome check oss/monad/src"
+    },
+    "ci": {
+      "command": "biome ci oss/monad/src"
+    },
+    "test": {
+      "command": "cd oss/monad && node --import tsx --test 'src/**/*.spec.ts'"
+    },
+    "build": {
+      "command": "tsc -p oss/monad/tsconfig.json",
+      "dependsOn": [],
+      "outputs": ["{workspaceRoot}/dist/oss/monad"]
+    }
+  }
+}

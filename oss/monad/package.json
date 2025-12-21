@@ -1,0 +1,19 @@
+{
+  "name": "@groceries/monad",
+  "version": "1.0.0",
+  "description": "Monad library for functional programming in groceries application",
+  "type": "module",
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "node --import tsx --test 'src/**/*.spec.ts'"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "catalog:building",
+    "tsx": "^4.19.4",
+    "typescript": "catalog:building"
+  }
+}
