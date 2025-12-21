@@ -1,24 +1,24 @@
-import type { decider } from "@groceries/event-sourcing";
-import type { Request, Response } from "express";
-import type { list } from "../usecases";
+import type { decider } from "@groceries/event-sourcing"
+import type { Request, Response } from "express"
+import type { list } from "../usecases"
 
 export function change(execute: decider.ExecuteCommand<list.ChangeNameCommand, list.ListEvent>) {
   return async (request: Request, response: Response) => {
-    const id = request.params.id as list.Id;
+    const id = request.params.id as list.Id
 
     await execute([id], {
       type: "list.change-name",
       id,
       newName: request.body.name,
     }).then(() => {
-      const redirectUrl = `/lists/${id}`;
+      const redirectUrl = `/lists/${id}`
 
       if (request.headers["hx-request"]) {
-        response.setHeader("HX-Redirect", redirectUrl);
-        response.status(200).send();
+        response.setHeader("HX-Redirect", redirectUrl)
+        response.status(200).send()
       } else {
-        response.redirect(redirectUrl);
+        response.redirect(redirectUrl)
       }
-    });
-  };
+    })
+  }
 }

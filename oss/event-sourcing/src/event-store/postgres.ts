@@ -1,4 +1,4 @@
-import type { Sql } from "postgres";
+import type { Sql } from "postgres"
 import type {
   Envelope,
   Event,
@@ -7,7 +7,7 @@ import type {
   PersistedEnvelope,
   ReadCondition,
   WriteCondition,
-} from "./event-store";
+} from "./event-store"
 
 export const Postgres = async <E extends Event>(
   schemaName: string,
@@ -38,22 +38,22 @@ export const Postgres = async <E extends Event>(
           ORDER BY d1
         $$ LANGUAGE sql IMMUTABLE PARALLEL SAFE STRICT;
       `,
-  ]);
+  ])
 
   return {
     save: async (envelopes: Envelope<E>[], writeCondition?: WriteCondition): Promise<PersistedEnvelope<E>[]> => {
       if (envelopes.length === 0) {
-        return [];
+        return []
       }
 
-      const streamIDs: string[][] = [];
-      const eventNames: string[] = [];
-      const payloads: string[] = [];
+      const streamIDs: string[][] = []
+      const eventNames: string[] = []
+      const payloads: string[] = []
 
       for (const envelope of envelopes) {
-        streamIDs.push(Array.isArray(envelope.streamId) ? envelope.streamId : [envelope.streamId]);
-        eventNames.push(envelope.type);
-        payloads.push(JSON.stringify(envelope.event));
+        streamIDs.push(Array.isArray(envelope.streamId) ? envelope.streamId : [envelope.streamId])
+        eventNames.push(envelope.type)
+        payloads.push(JSON.stringify(envelope.event))
       }
 
       const persistedRows = await sql<PersistedEnvelope<E>[]>`
@@ -105,15 +105,13 @@ export const Postgres = async <E extends Event>(
         "StreamID" as "streamId",
         "Type" as "type",
         "Event" as "event";
-    `;
+    `
 
       if (writeCondition && persistedRows.length === 0) {
-        throw new Error(
-          `Concurrency conflict: Events were inserted after position ${writeCondition.lastEventPosition}`,
-        );
+        throw new Error(`Concurrency conflict: Events were inserted after position ${writeCondition.lastEventPosition}`)
       }
 
-      return persistedRows;
+      return persistedRows
     },
 
     read: async ({
@@ -140,8 +138,8 @@ export const Postgres = async <E extends Event>(
         ORDER BY
             "Position" ASC
         ${sql`LIMIT ${limit || defaultLimit}`}
-      `;
-      return eventsFound.map((event) => ({ ...event, event: parser(event.event) }));
+      `
+      return eventsFound.map((event) => ({ ...event, event: parser(event.event) }))
     },
-  };
-};
+  }
+}

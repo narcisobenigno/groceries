@@ -32,7 +32,7 @@
       "quoteStyle": "double",
       "jsxQuoteStyle": "double",
       "quoteProperties": "asNeeded",
-      "semicolons": "always"
+      "semicolons": "asNeeded"
     }
   },
   "files": {

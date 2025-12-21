@@ -1,11 +1,11 @@
-import type { list } from "..";
+import type { list } from ".."
 
 export type List = {
-  id: list.Id;
-  name: string;
-};
+  id: list.Id
+  name: string
+}
 
 export interface Projection {
-  all(): Promise<List[]>;
-  byId(id: list.Id): Promise<List>;
+  all(): Promise<List[]>
+  byId(id: list.Id): Promise<List>
 }

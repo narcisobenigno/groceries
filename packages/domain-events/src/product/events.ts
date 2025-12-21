@@ -1,16 +1,16 @@
-import type { ProductId } from "./id";
+import type { ProductId } from "./id"
 
 export type ProductAdded = {
-  type: "product.added";
-  id: ProductId;
-  name: string;
-};
+  type: "product.added"
+  id: ProductId
+  name: string
+}
 
 export type ProductNameChanged = {
-  type: "product.name-changed";
-  id: ProductId;
-  newName: string;
-  oldName: string;
-};
+  type: "product.name-changed"
+  id: ProductId
+  newName: string
+  oldName: string
+}
 
-export type ProductEvent = ProductAdded | ProductNameChanged;
+export type ProductEvent = ProductAdded | ProductNameChanged

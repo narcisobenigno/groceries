@@ -57,6 +57,15 @@
         "typescript": "catalog:building",
       },
     },
+    "oss/monad": {
+      "name": "@groceries/monad",
+      "version": "1.0.0",
+      "devDependencies": {
+        "@types/node": "catalog:building",
+        "tsx": "^4.19.4",
+        "typescript": "catalog:building",
+      },
+    },
     "packages/domain-events": {
       "name": "@groceries/domain-events",
       "version": "1.0.0",
@@ -173,6 +182,8 @@
     "@groceries/domain-events": ["@groceries/domain-events@workspace:packages/domain-events"],
 
     "@groceries/event-sourcing": ["@groceries/event-sourcing@workspace:oss/event-sourcing"],
+
+    "@groceries/monad": ["@groceries/monad@workspace:oss/monad"],
 
     "@grpc/grpc-js": ["@grpc/grpc-js@1.14.1", "", { "dependencies": { "@grpc/proto-loader": "^0.8.0", "@js-sdsl/ordered-map": "^4.4.2" } }, "sha512-sPxgEWtPUR3EnRJCEtbGZG2iX8LQDUls2wUS3o27jg07KqJFMq6YDeWvMo1wfpmy3rqRdS0rivpLwhqQtEyCuQ=="],
 

@@ -1,53 +1,51 @@
-import assert from "node:assert/strict";
-import { after, afterEach, before, beforeEach, describe, it } from "node:test";
-import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
-import postgres, { type Sql } from "postgres";
-import { Wait } from "testcontainers";
-import * as eventstore from "../event-store";
-import { Postgres, type PostgresProjectors } from "./postgres";
+import assert from "node:assert/strict"
+import { after, afterEach, before, beforeEach, describe, it } from "node:test"
+import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql"
+import postgres, { type Sql } from "postgres"
+import { Wait } from "testcontainers"
+import * as eventstore from "../event-store"
+import { Postgres, type PostgresProjectors } from "./postgres"
 
 describe("PostgresProjector", () => {
-  let container: StartedPostgreSqlContainer;
-  let sql: Sql;
-  let schemaName: string;
+  let container: StartedPostgreSqlContainer
+  let sql: Sql
+  let schemaName: string
 
   before(
     async () => {
-      container = await new PostgreSqlContainer("postgres:17-alpine")
-        .withWaitStrategy(Wait.forListeningPorts())
-        .start();
+      container = await new PostgreSqlContainer("postgres:17-alpine").withWaitStrategy(Wait.forListeningPorts()).start()
     },
     { timeout: 120_000 },
-  );
+  )
   after(
     async () => {
       if (container) {
-        await container.stop();
+        await container.stop()
       }
     },
     { timeout: 120_000 },
-  );
+  )
 
   beforeEach(() => {
-    sql = postgres(container.getConnectionUri());
-    schemaName = `projector-${Math.floor(Math.random() * 100000)}`;
-  });
+    sql = postgres(container.getConnectionUri())
+    schemaName = `projector-${Math.floor(Math.random() * 100000)}`
+  })
   afterEach(
     async () => {
-      await sql.end();
+      await sql.end()
     },
     { timeout: 120_000 },
-  );
+  )
 
   it("projects events", async () => {
-    const eventStore = new eventstore.InMemory<TestEvents>();
+    const eventStore = new eventstore.InMemory<TestEvents>()
 
     const projector = await Postgres({
       schemaName,
       sql,
       eventStore,
       projectors: new TestProject(),
-    });
+    })
 
     await eventStore.save([
       {
@@ -65,19 +63,19 @@ describe("PostgresProjector", () => {
         type: "created",
         event: { type: "created", numberId: "stream_4321", value: 4 },
       },
-    ]);
+    ])
 
-    await projector.start();
+    await projector.start()
 
-    const projections = await read(sql, schemaName);
+    const projections = await read(sql, schemaName)
     assert.deepStrictEqual(Array.from(projections), [
       { numberId: "stream_123", value: 3 },
       { numberId: "stream_4321", value: 4 },
-    ]);
-  });
+    ])
+  })
 
   it("projects up to the limit", async () => {
-    const eventStore = new eventstore.InMemory<TestEvents>();
+    const eventStore = new eventstore.InMemory<TestEvents>()
 
     const projector = await Postgres({
       schemaName,
@@ -85,7 +83,7 @@ describe("PostgresProjector", () => {
       eventStore,
       projectors: new TestProject(),
       limit: 2,
-    });
+    })
 
     await eventStore.save([
       {
@@ -103,16 +101,16 @@ describe("PostgresProjector", () => {
         type: "created",
         event: { type: "created", numberId: "stream_4321", value: 4 },
       },
-    ]);
+    ])
 
-    await projector.start();
+    await projector.start()
 
-    const projections = await read(sql, schemaName);
-    assert.deepStrictEqual(Array.from(projections), [{ numberId: "stream_123", value: 3 }]);
-  });
+    const projections = await read(sql, schemaName)
+    assert.deepStrictEqual(Array.from(projections), [{ numberId: "stream_123", value: 3 }])
+  })
 
   it("projects from where it left off", async () => {
-    const eventStore = new eventstore.InMemory<TestEvents>();
+    const eventStore = new eventstore.InMemory<TestEvents>()
 
     const projector = await Postgres({
       schemaName,
@@ -120,7 +118,7 @@ describe("PostgresProjector", () => {
       eventStore,
       projectors: new TestProject(),
       limit: 2,
-    });
+    })
 
     await eventStore.save([
       {
@@ -138,20 +136,20 @@ describe("PostgresProjector", () => {
         type: "created",
         event: { type: "created", numberId: "stream_4321", value: 4 },
       },
-    ]);
+    ])
 
-    await projector.start();
-    await projector.start();
+    await projector.start()
+    await projector.start()
 
-    const projections = await read(sql, schemaName);
+    const projections = await read(sql, schemaName)
     assert.deepStrictEqual(Array.from(projections), [
       { numberId: "stream_123", value: 3 },
       { numberId: "stream_4321", value: 4 },
-    ]);
-  });
+    ])
+  })
 
   it("returns true when events projected up until limit", async () => {
-    const eventStore = new eventstore.InMemory<TestEvents>();
+    const eventStore = new eventstore.InMemory<TestEvents>()
 
     const projector = await Postgres({
       schemaName,
@@ -159,7 +157,7 @@ describe("PostgresProjector", () => {
       eventStore,
       projectors: new TestProject(),
       limit: 2,
-    });
+    })
 
     await eventStore.save([
       {
@@ -172,14 +170,14 @@ describe("PostgresProjector", () => {
         type: "added",
         event: { type: "added", numberId: "stream_123", value: 2 },
       },
-    ]);
+    ])
 
-    const projected = await projector.start();
-    assert.strictEqual(projected, true);
-  });
+    const projected = await projector.start()
+    assert.strictEqual(projected, true)
+  })
 
   it("returns false when events projected less than limit", async () => {
-    const eventStore = new eventstore.InMemory<TestEvents>();
+    const eventStore = new eventstore.InMemory<TestEvents>()
 
     const projector = await Postgres({
       schemaName,
@@ -187,7 +185,7 @@ describe("PostgresProjector", () => {
       eventStore,
       projectors: new TestProject(),
       limit: 2,
-    });
+    })
 
     await eventStore.save([
       {
@@ -195,55 +193,55 @@ describe("PostgresProjector", () => {
         type: "created",
         event: { type: "created", numberId: "stream_123", value: 1 },
       },
-    ]);
+    ])
 
-    const projected = await projector.start();
-    assert.strictEqual(projected, false);
-  });
-});
+    const projected = await projector.start()
+    assert.strictEqual(projected, false)
+  })
+})
 
 type CreatedEvent = {
-  type: "created";
-  numberId: string;
-  value: number;
-};
+  type: "created"
+  numberId: string
+  value: number
+}
 
 type AddedEvent = {
-  type: "added";
-  numberId: string;
-  value: number;
-};
+  type: "added"
+  numberId: string
+  value: number
+}
 
-type TestEvents = CreatedEvent | AddedEvent;
+type TestEvents = CreatedEvent | AddedEvent
 
 type TestProjectionRow = {
-  numberId: string;
-  value: number;
-};
+  numberId: string
+  value: number
+}
 const read = async (sql: Sql, schemaName: string): Promise<TestProjectionRow[]> => {
-  await sql`SET search_path TO ${sql(schemaName)}`;
-  return sql<TestProjectionRow[]>`SELECT number_id as "numberId", value FROM "projection"`;
-};
+  await sql`SET search_path TO ${sql(schemaName)}`
+  return sql<TestProjectionRow[]>`SELECT number_id as "numberId", value FROM "projection"`
+}
 
 class TestProject {
   async init(sql: Sql): Promise<postgres.Row[]> {
-    return [await sql`CREATE TABLE IF NOT EXISTS "projection" (number_id TEXT PRIMARY KEY, value int)`];
+    return [await sql`CREATE TABLE IF NOT EXISTS "projection" (number_id TEXT PRIMARY KEY, value int)`]
   }
 
   all(): PostgresProjectors<TestEvents> {
     return {
       created: async (sql, event) => {
-        const payload = event.event;
+        const payload = event.event
         return [
           await sql`INSERT INTO "projection" (number_id, value) VALUES (${payload.numberId}, ${payload.value.toString()})`,
-        ];
+        ]
       },
       added: async (sql, event) => {
-        const payload = event.event;
+        const payload = event.event
         return [
           await sql`UPDATE "projection" SET value = value + ${payload.value.toString()} WHERE number_id = ${payload.numberId}`,
-        ];
+        ]
       },
-    };
+    }
   }
 }

@@ -1,12 +1,12 @@
-import assert from "node:assert/strict";
-import { describe, it } from "node:test";
-import type { PersistedEnvelope } from "@groceries/event-sourcing/event-store";
-import { ChangeName } from "./change-name";
-import type { ProductEvent } from "./event";
+import assert from "node:assert/strict"
+import { describe, it } from "node:test"
+import type { PersistedEnvelope } from "@groceries/event-sourcing/event-store"
+import { ChangeName } from "./change-name"
+import type { ProductEvent } from "./event"
 
 describe("change name", () => {
   it("changes name after product created", async () => {
-    const changeName = ChangeName();
+    const changeName = ChangeName()
 
     const setupEvents: PersistedEnvelope<ProductEvent>[] = [
       {
@@ -16,12 +16,12 @@ describe("change name", () => {
         timestamp: new Date(),
         event: { type: "product.added", id: "product_123", name: "Test Product" },
       },
-    ];
+    ]
 
     const result = await changeName.decide(
       { type: "product.change-name", id: "product_123", newName: "New Test Product" },
       setupEvents.reduce(changeName.evolve, changeName.initialState()),
-    );
+    )
 
     assert.deepStrictEqual(result, [
       {
@@ -34,11 +34,11 @@ describe("change name", () => {
           oldName: "Test Product",
         },
       },
-    ]);
-  });
+    ])
+  })
 
   it("changes name after product name changed", async () => {
-    const changeName = ChangeName();
+    const changeName = ChangeName()
 
     const setupEvents: PersistedEnvelope<ProductEvent>[] = [
       {
@@ -60,12 +60,12 @@ describe("change name", () => {
           oldName: "First Test Product",
         },
       },
-    ];
+    ]
 
     const result = await changeName.decide(
       { type: "product.change-name", id: "product_123", newName: "Newest Test Product" },
       setupEvents.reduce(changeName.evolve, changeName.initialState()),
-    );
+    )
 
     assert.deepStrictEqual(result, [
       {
@@ -78,11 +78,11 @@ describe("change name", () => {
           newName: "Newest Test Product",
         },
       },
-    ]);
-  });
+    ])
+  })
 
   it("does not change name when product does not exist", async () => {
-    const changeName = ChangeName();
+    const changeName = ChangeName()
 
     await assert.rejects(
       changeName.decide(
@@ -90,11 +90,11 @@ describe("change name", () => {
         changeName.initialState(),
       ),
       new Error("Product with id product_123 does not exist"),
-    );
-  });
+    )
+  })
 
   it("does not change name when new name is the same", async () => {
-    const changeName = ChangeName();
+    const changeName = ChangeName()
 
     const setupEvents: PersistedEnvelope<ProductEvent>[] = [
       {
@@ -104,13 +104,13 @@ describe("change name", () => {
         timestamp: new Date(),
         event: { type: "product.added", id: "product_123", name: "Test Product" },
       },
-    ];
+    ]
 
     const result = await changeName.decide(
       { type: "product.change-name", id: "product_123", newName: "Test Product" },
       setupEvents.reduce(changeName.evolve, changeName.initialState()),
-    );
+    )
 
-    assert.deepStrictEqual(result, []);
-  });
-});
+    assert.deepStrictEqual(result, [])
+  })
+})

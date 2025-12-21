@@ -1,1 +1,1 @@
-export type { ProductEvent } from "@groceries/domain-events/product";
+export type { ProductEvent } from "@groceries/domain-events/product"
